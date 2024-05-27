@@ -32,8 +32,16 @@ Shader "Unlit/BillboardGrass"
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _MainTex;
+            struct GrassData {
+                float4 position;
+            };
+
+            
+
+            sampler2D _MainTex, _HeightMap;
             float4 _MainTex_ST;
+            StructuredBuffer<GrassData> positionBuffer;
+            float _Rotation;
 
             v2f vert (appdata v)
             {
@@ -46,10 +54,7 @@ Shader "Unlit/BillboardGrass"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG
