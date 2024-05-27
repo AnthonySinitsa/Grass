@@ -6,19 +6,18 @@ Shader "Unlit/BillboardGrass"
     }
     SubShader
     {
-        Cull Off
-        Zwrite On
+        Cull Back
+        Zwrite Off
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-
+            
             #pragma target 4.5
 
-            #include "UnityPBSLighting.cginc"
-            #include "AutoLight.cginc"
+            #include "UnityCG.cginc"
 
             struct appdata
             {
@@ -48,7 +47,6 @@ Shader "Unlit/BillboardGrass"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 

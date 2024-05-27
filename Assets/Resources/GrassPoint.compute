@@ -1,4 +1,6 @@
-#pragma kernel CSMain
+#pragma kernel InitializeGrass
+
+#include "Simplex.compute"
 
 struct GrassData {
     float4 position;
@@ -6,23 +8,38 @@ struct GrassData {
 };
 
 RWStructuredBuffer<GrassData> _GrassDataBuffer;
-Texture2D<float> _HeightMap;
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
 
-int _Dimension;
-int _Scale;
+int _Dimension, _Scale;
 
-[numthreads(8, 8, 1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
-{
-    uint index = id.x + id.y * _Dimension;
-    if (index >= _Dimension * _Dimension) return;
+[numthreads(8,8,1)]
+void InitializeGrass(uint3 id : SV_DispatchThreadID) {
+    if (id.x < uint(_Dimension) && id.y < uint(_Dimension)) {
+        GrassData grass;
+        float4 pos = 0.0f;
+        pos.xz = (id.xy - float(_Dimension) * 0.5) * (1.0f / float(_Scale));
 
-    float2 uv = float2(id.x, id.y) / _Dimension;
-    float height = _HeightMap.SampleLevel(sampler2D(_HeightMap, _HeightMapSampler), uv, 0).r;
+        pos.x += snoise(float3(pos.xz, 0.0f) * 3.0f) * 0.05f;
+        pos.z += snoise(float3(pos.xz, 0.0f) * 4.0f) * 0.05f;
 
-    GrassData grassData;
-    grassData.position = float4(uv.x * _Scale, height, uv.y * _Scale, 1.0);
-    grassData.uv = uv;
+        float2 uv = pos.xz;
+        uv = (id.xy) * (1.0f / float(_Scale));
+        uv.xy /= float(_Dimension) * (1.0f / float(_Scale));
+        uv.y = 1 - uv.y;
+        uv.x = 1 - uv.x;
 
-    _GrassDataBuffer[index] = grassData;
+        float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0);
+
+        pos.y += 0.5f;
+
+        float noise = abs(snoise(float3(pos.xz, 0.0f) * 0.2f));
+
+        pos.w = lerp(0.3f, 0.6f, noise);
+
+        grass.position = pos;
+        grass.uv = uv;
+
+        _GrassDataBuffer[id.x + id.y * _Dimension] = grass;
+    }
 }
