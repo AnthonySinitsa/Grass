@@ -40,8 +40,8 @@ Shader "Unlit/BillboardGrass"
 
             sampler2D _MainTex, _HeightMap;
             float4 _MainTex_ST;
-            // StructuredBuffer<GrassData> positionBuffer;
-            // float _Rotation;
+            StructuredBuffer<GrassData> positionBuffer;
+            float _Rotation;
 
             v2f vert (appdata v)
             {

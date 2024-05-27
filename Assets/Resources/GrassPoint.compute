@@ -1,7 +1,5 @@
 #pragma kernel InitializeGrass
 
-#include "Simplex.compute"
-
 struct GrassData {
     float4 position;
     float2 uv;
@@ -20,9 +18,6 @@ void InitializeGrass(uint3 id : SV_DispatchThreadID) {
         float4 pos = 0.0f;
         pos.xz = (id.xy - float(_Dimension) * 0.5) * (1.0f / float(_Scale));
 
-        pos.x += snoise(float3(pos.xz, 0.0f) * 3.0f) * 0.05f;
-        pos.z += snoise(float3(pos.xz, 0.0f) * 4.0f) * 0.05f;
-
         float2 uv = pos.xz;
         uv = (id.xy) * (1.0f / float(_Scale));
         uv.xy /= float(_Dimension) * (1.0f / float(_Scale));
@@ -33,9 +28,7 @@ void InitializeGrass(uint3 id : SV_DispatchThreadID) {
 
         pos.y += 0.5f;
 
-        float noise = abs(snoise(float3(pos.xz, 0.0f) * 0.2f));
-
-        pos.w = lerp(0.3f, 0.6f, noise);
+        pos.w = 0.5f; // Set a constant value for grass density
 
         grass.position = pos;
         grass.uv = uv;
