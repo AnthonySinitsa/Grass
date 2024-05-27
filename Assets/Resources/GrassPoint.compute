@@ -1,0 +1,28 @@
+#pragma kernel CSMain
+
+struct GrassData {
+    float4 position;
+    float2 uv;
+};
+
+RWStructuredBuffer<GrassData> _GrassDataBuffer;
+Texture2D<float> _HeightMap;
+
+int _Dimension;
+int _Scale;
+
+[numthreads(8, 8, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint index = id.x + id.y * _Dimension;
+    if (index >= _Dimension * _Dimension) return;
+
+    float2 uv = float2(id.x, id.y) / _Dimension;
+    float height = _HeightMap.SampleLevel(sampler2D(_HeightMap, _HeightMapSampler), uv, 0).r;
+
+    GrassData grassData;
+    grassData.position = float4(uv.x * _Scale, height, uv.y * _Scale, 1.0);
+    grassData.uv = uv;
+
+    _GrassDataBuffer[index] = grassData;
+}
