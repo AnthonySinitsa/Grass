@@ -14,7 +14,8 @@ Shader "Unlit/BillboardGrass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            
+
+            #pragma multi_compile_instancing
             #pragma target 4.5
 
             #include "UnityCG.cginc"
@@ -39,8 +40,8 @@ Shader "Unlit/BillboardGrass"
 
             sampler2D _MainTex, _HeightMap;
             float4 _MainTex_ST;
-            StructuredBuffer<GrassData> positionBuffer;
-            float _Rotation;
+            // StructuredBuffer<GrassData> positionBuffer;
+            // float _Rotation;
 
             v2f vert (appdata v)
             {

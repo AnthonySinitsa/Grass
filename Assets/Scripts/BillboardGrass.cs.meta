@@ -6,7 +6,7 @@ MonoImporter:
   defaultReferences:
   - grassMaterial: {fileID: 2100000, guid: 191b353f8b3cd744e9d9f21ce47904ce, type: 2}
   - grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  - heightMap: {fileID: 2800000, guid: a762e043caaf73941be434f7e8e900e1, type: 3}
+  - heightMap: {fileID: 2800000, guid: 9b69c468b40da324492a431096f00a14, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
