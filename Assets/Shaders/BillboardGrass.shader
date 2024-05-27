@@ -6,18 +6,19 @@ Shader "Unlit/BillboardGrass"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
-        LOD 100
+        Cull Off
+        Zwrite On
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
-            #include "UnityCG.cginc"
+            #pragma target 4.5
+
+            #include "UnityPBSLighting.cginc"
+            #include "AutoLight.cginc"
 
             struct appdata
             {
@@ -28,7 +29,6 @@ Shader "Unlit/BillboardGrass"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
 
