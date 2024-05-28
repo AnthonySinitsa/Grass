@@ -11,6 +11,7 @@ Shader "Custom/UnlitTextureShader"
         
         Pass
         {
+            Cull Off
             Blend SrcAlpha OneMinusSrcAlpha
             CGPROGRAM
             #pragma vertex vert
