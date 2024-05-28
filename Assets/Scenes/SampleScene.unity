@@ -167,7 +167,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec2b4035acb77e5429ab4eb7d9a6b084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grassPrefab: {fileID: 5110013928393243983, guid: a36ea1cbb600dcf41ba6a45ee0235eb6, type: 3}
+  grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  grassMaterial: {fileID: 2100000, guid: 191b353f8b3cd744e9d9f21ce47904ce, type: 2}
   gridWidth: 16
   gridHeight: 16
   spacing: 1
