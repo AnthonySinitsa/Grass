@@ -6,55 +6,55 @@ Shader "Unlit/BillboardGrass"
     }
     SubShader
     {
-        Cull Back
-        Zwrite Off
-
+        Tags { "RenderType"="Opaque" }
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-
             #pragma multi_compile_instancing
-            #pragma target 4.5
 
             #include "UnityCG.cginc"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
             struct v2f
             {
+                float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
             };
 
-            struct GrassData {
-                float4 position;
-            };
-
-            
-
-            sampler2D _MainTex, _HeightMap;
-            float4 _MainTex_ST;
-            StructuredBuffer<GrassData> positionBuffer;
-            float _Rotation;
-
-            v2f vert (appdata v)
+            struct GrassData
             {
+                float3 position;
+                float2 uv;
+            };
+
+            StructuredBuffer<GrassData> grassBuffer;
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+
+            v2f vert (appdata_full v, uint id : SV_InstanceID)
+            {
+                GrassData data = grassBuffer[id];
+
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                float3 billboardPos = data.position;
+
+                // For simplicity, just place the quad directly
+                float3 quadPos = v.vertex + billboardPos;
+                o.pos = UnityObjectToClipPos(float4(quadPos, 1));
+
+                // Pass UVs from the vertex data
+                o.uv = v.texcoord.xy;
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                return col;
+                fixed4 texColor = tex2D(_MainTex, i.uv);
+                // Perform alpha clipping
+                if (texColor.a < 0.5) discard; // Adjust the threshold as needed
+                return texColor;
             }
             ENDCG
         }

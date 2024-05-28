@@ -1,82 +1,78 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class BillboardGrass : MonoBehaviour {
-    public int resolution = 100;
-    public int scale = 1;
-    public Material grassMaterial;
+public class BillboardGrass : MonoBehaviour
+{
+    public Texture2D grassTexture;
+    public ComputeShader grassComputeShader;
     public Mesh grassMesh;
-    public Texture heightMap;
+    public Material grassMaterial;
 
-    public bool updateGrass;
+    public int gridWidth = 100; // Width of the grid in meters
+    public int gridHeight = 100; // Height of the grid in meters
 
-    private ComputeShader initializeGrassShader;
-    private ComputeBuffer grassDataBuffer, argsBuffer;
-    private Material grassMaterial2, grassMaterial3;
+    private int grassCount;
+    private ComputeBuffer grassBuffer;
+    private ComputeBuffer argsBuffer;
 
-    private struct GrassData {
-        public Vector4 position;
+    struct GrassData
+    {
+        public Vector3 position;
         public Vector2 uv;
     }
 
-    void Start() {
-        resolution *= scale;
-        initializeGrassShader = Resources.Load<ComputeShader>("GrassPoint");
-        grassDataBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 6);
-        argsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
-
-        updateGrassBuffer();
+    void Start()
+    {
+        InitializeGrass();
     }
 
-    void updateGrassBuffer() {
-        initializeGrassShader.SetInt("_Dimension", resolution);
-        initializeGrassShader.SetInt("_Scale", scale);
-        initializeGrassShader.SetBuffer(0, "_GrassDataBuffer", grassDataBuffer);
-        initializeGrassShader.SetTexture(0, "_HeightMap", heightMap);
-        initializeGrassShader.Dispatch(0, Mathf.CeilToInt(resolution / 8.0f), Mathf.CeilToInt(resolution / 8.0f), 1);
+    void InitializeGrass()
+    {
+        Debug.Log("Initializing grass...");
 
-        uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
-        args[0] = (uint)grassMesh.GetIndexCount(0);
-        args[1] = (uint)grassDataBuffer.count;
-        args[2] = (uint)grassMesh.GetIndexStart(0);
-        args[3] = (uint)grassMesh.GetBaseVertex(0);
+        grassCount = gridWidth * gridHeight;
+        GrassData[] grassDataArray = new GrassData[grassCount];
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int z = 0; z < gridHeight; z++)
+            {
+                int index = x * gridHeight + z;
+                grassDataArray[index].position = new Vector3(x, 0, z);
+                grassDataArray[index].uv = new Vector2(0, 0); // UVs will be handled by shader
+            }
+        }
+
+        grassBuffer = new ComputeBuffer(grassCount, sizeof(float) * 5);
+        grassBuffer.SetData(grassDataArray);
+
+        int kernelHandle = grassComputeShader.FindKernel("CSMain");
+        grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
+        grassComputeShader.Dispatch(kernelHandle, grassCount / 10, 1, 1);
+
+        grassMaterial.SetTexture("_MainTex", grassTexture);
+        grassMaterial.SetBuffer("grassBuffer", grassBuffer);
+
+        uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)grassCount, 0, 0, 0 };
+        argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         argsBuffer.SetData(args);
 
-        grassMaterial.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial.SetFloat("_Rotation", 0.0f);
-        grassMaterial2 = new Material(grassMaterial);
-        grassMaterial2.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial2.SetFloat("_Rotation", 50.0f);
-        grassMaterial3 = new Material(grassMaterial);
-        grassMaterial3.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial3.SetFloat("_Rotation", -50.0f);
+        Debug.Log("Grass initialized.");
     }
 
-    void Update() {
-        grassMaterial.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial.SetFloat("_Rotation", 0.0f);
-        grassMaterial2 = new Material(grassMaterial);
-        grassMaterial2.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial2.SetFloat("_Rotation", 50.0f);
-        grassMaterial3 = new Material(grassMaterial);
-        grassMaterial3.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial3.SetFloat("_Rotation", -50.0f);
+    void Update()
+    {
+        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(gridWidth, 10, gridHeight)), argsBuffer);
+    }
 
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(500.0f, 200.0f, 500.0f)), argsBuffer);
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial2, new Bounds(Vector3.zero, new Vector3(500.0f, 200.0f, 500.0f)), argsBuffer);
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial3, new Bounds(Vector3.zero, new Vector3(500.0f, 200.0f, 500.0f)), argsBuffer);
-
-        if (updateGrass) {
-            updateGrassBuffer();
-            updateGrass = false;
+    void OnDestroy()
+    {
+        if (grassBuffer != null)
+        {
+            grassBuffer.Release();
         }
-    }
-    
-    void OnDisable() {
-        grassDataBuffer.Release();
-        argsBuffer.Release();
-        grassDataBuffer = null;
-        argsBuffer = null;
+        if (argsBuffer != null)
+        {
+            argsBuffer.Release();
+        }
     }
 }

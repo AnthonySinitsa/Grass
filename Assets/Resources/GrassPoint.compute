@@ -1,38 +1,17 @@
-#pragma kernel InitializeGrass
+#pragma kernel CSMain
 
-struct GrassData {
-    float4 position;
+struct GrassData
+{
+    float3 position;
     float2 uv;
 };
 
-RWStructuredBuffer<GrassData> _GrassDataBuffer;
-Texture2D<float4> _HeightMap;
-SamplerState sampler_HeightMap;
+RWStructuredBuffer<GrassData> grassBuffer;
 
-int _Dimension, _Scale;
-
-[numthreads(8,8,1)]
-void InitializeGrass(uint3 id : SV_DispatchThreadID) {
-    if (id.x < uint(_Dimension) && id.y < uint(_Dimension)) {
-        GrassData grass;
-        float4 pos = 0.0f;
-        pos.xz = (id.xy - float(_Dimension) * 0.5) * (1.0f / float(_Scale));
-
-        float2 uv = pos.xz;
-        uv = (id.xy) * (1.0f / float(_Scale));
-        uv.xy /= float(_Dimension) * (1.0f / float(_Scale));
-        uv.y = 1 - uv.y;
-        uv.x = 1 - uv.x;
-
-        float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0);
-
-        pos.y += 0.5f;
-
-        pos.w = 0.5f; // Set a constant value for grass density
-
-        grass.position = pos;
-        grass.uv = uv;
-
-        _GrassDataBuffer[id.x + id.y * _Dimension] = grass;
-    }
+[numthreads(10, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    GrassData data = grassBuffer[id.x];
+    // Here you can manipulate grass data if needed
+    grassBuffer[id.x] = data;
 }
