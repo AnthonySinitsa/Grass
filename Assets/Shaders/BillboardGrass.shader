@@ -9,6 +9,7 @@ Shader "Unlit/BillboardGrass"
         Tags { "RenderType"="Opaque" }
         Pass
         {
+            Cull Off
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -41,7 +42,10 @@ Shader "Unlit/BillboardGrass"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return tex2D(_MainTex, i.uv);
+                fixed4 texColor = tex2D(_MainTex, i.uv);
+                // Perform alpha clipping
+                if (texColor.a < 0.5) discard; // Adjust the threshold as needed
+                return texColor;
             }
             ENDCG
         }
