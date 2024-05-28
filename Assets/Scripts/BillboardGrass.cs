@@ -4,10 +4,15 @@ public class BillboardGrass : MonoBehaviour
 {
     public Texture2D grassTexture;
     public ComputeShader grassComputeShader;
+    public Mesh grassMesh;
+    public Material grassMaterial;
 
-    private int grassCount = 1000; // Number of grass instances
+    public int gridWidth = 100; // Width of the grid in meters
+    public int gridHeight = 100; // Height of the grid in meters
+
+    private int grassCount;
     private ComputeBuffer grassBuffer;
-    private Material grassMaterial;
+    private ComputeBuffer argsBuffer;
 
     struct GrassData
     {
@@ -24,13 +29,17 @@ public class BillboardGrass : MonoBehaviour
     {
         Debug.Log("Initializing grass...");
 
+        grassCount = gridWidth * gridHeight;
         GrassData[] grassDataArray = new GrassData[grassCount];
-        for (int i = 0; i < grassCount; i++)
+
+        for (int x = 0; x < gridWidth; x++)
         {
-            grassDataArray[i].position = new Vector3(
-                Random.Range(-50, 50), 0, Random.Range(-50, 50)
-            );
-            grassDataArray[i].uv = new Vector2(0, 0); // UVs will be handled by shader
+            for (int z = 0; z < gridHeight; z++)
+            {
+                int index = x * gridHeight + z;
+                grassDataArray[index].position = new Vector3(x, 0, z);
+                grassDataArray[index].uv = new Vector2(0, 0); // UVs will be handled by shader
+            }
         }
 
         grassBuffer = new ComputeBuffer(grassCount, sizeof(float) * 5);
@@ -40,25 +49,19 @@ public class BillboardGrass : MonoBehaviour
         grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
         grassComputeShader.Dispatch(kernelHandle, grassCount / 10, 1, 1);
 
-        grassMaterial = new Material(Shader.Find("Unlit/BillboardGrass"));
         grassMaterial.SetTexture("_MainTex", grassTexture);
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
+
+        uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)grassCount, 0, 0, 0 };
+        argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
+        argsBuffer.SetData(args);
 
         Debug.Log("Grass initialized.");
     }
 
-    void OnRenderObject()
+    void Update()
     {
-        if (grassMaterial == null)
-        {
-            Debug.LogWarning("Grass material is not initialized.");
-            return;
-        }
-
-        grassMaterial.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Triangles, 18, grassCount);
-
-        Debug.Log("Grass rendered.");
+        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(gridWidth, 10, gridHeight)), argsBuffer);
     }
 
     void OnDestroy()
@@ -66,6 +69,10 @@ public class BillboardGrass : MonoBehaviour
         if (grassBuffer != null)
         {
             grassBuffer.Release();
+        }
+        if (argsBuffer != null)
+        {
+            argsBuffer.Release();
         }
     }
 }

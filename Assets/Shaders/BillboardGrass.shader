@@ -12,6 +12,7 @@ Shader "Unlit/BillboardGrass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"
 
@@ -32,36 +33,16 @@ Shader "Unlit/BillboardGrass"
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
-            v2f vert (uint id : SV_VertexID)
+            v2f vert (appdata_full v, uint id : SV_InstanceID)
             {
-                GrassData data = grassBuffer[id / 18];
+                GrassData data = grassBuffer[id];
 
                 v2f o;
                 float3 billboardPos = data.position;
                 float3 cameraRight = float3(1, 0, 0);
                 float3 cameraUp = float3(0, 1, 0);
 
-                float3 quadPos = billboardPos;
-
-                // Adjust position for the three quads
-                if (id % 18 < 6)
-                {
-                    // First quad
-                    quadPos += (id % 2 == 0 ? -0.5 : 0.5) * cameraRight;
-                    quadPos += ((id / 2) % 2 == 0 ? -0.5 : 0.5) * cameraUp;
-                }
-                else if (id % 18 < 12)
-                {
-                    // Second quad (rotated)
-                    quadPos += (id % 2 == 0 ? -0.5 : 0.5) * float3(0, 0, 1);
-                    quadPos += ((id / 2) % 2 == 0 ? -0.5 : 0.5) * cameraUp;
-                }
-                else
-                {
-                    // Third quad (rotated)
-                    quadPos += (id % 2 == 0 ? -0.5 : 0.5) * cameraRight;
-                    quadPos += ((id / 2) % 2 == 0 ? -0.5 : 0.5) * float3(0, 0, 1);
-                }
+                float3 quadPos = billboardPos + v.vertex;
 
                 o.pos = UnityObjectToClipPos(float4(quadPos, 1));
                 o.uv = TRANSFORM_TEX(data.uv, _MainTex);
