@@ -34,7 +34,7 @@ Shader "Unlit/BillboardGrass"
 
             v2f vert (uint id : SV_VertexID)
             {
-                GrassData data = grassBuffer[id / 6];
+                GrassData data = grassBuffer[id / 18];
 
                 v2f o;
                 float3 billboardPos = data.position;
@@ -42,8 +42,26 @@ Shader "Unlit/BillboardGrass"
                 float3 cameraUp = float3(0, 1, 0);
 
                 float3 quadPos = billboardPos;
-                quadPos += (id % 2 == 0 ? -0.5 : 0.5) * cameraRight;
-                quadPos += (id / 2 % 2 == 0 ? -0.5 : 0.5) * cameraUp;
+
+                // Adjust position for the three quads
+                if (id % 18 < 6)
+                {
+                    // First quad
+                    quadPos += (id % 2 == 0 ? -0.5 : 0.5) * cameraRight;
+                    quadPos += ((id / 2) % 2 == 0 ? -0.5 : 0.5) * cameraUp;
+                }
+                else if (id % 18 < 12)
+                {
+                    // Second quad (rotated)
+                    quadPos += (id % 2 == 0 ? -0.5 : 0.5) * float3(0, 0, 1);
+                    quadPos += ((id / 2) % 2 == 0 ? -0.5 : 0.5) * cameraUp;
+                }
+                else
+                {
+                    // Third quad (rotated)
+                    quadPos += (id % 2 == 0 ? -0.5 : 0.5) * cameraRight;
+                    quadPos += ((id / 2) % 2 == 0 ? -0.5 : 0.5) * float3(0, 0, 1);
+                }
 
                 o.pos = UnityObjectToClipPos(float4(quadPos, 1));
                 o.uv = TRANSFORM_TEX(data.uv, _MainTex);

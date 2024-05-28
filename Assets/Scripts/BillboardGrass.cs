@@ -5,10 +5,10 @@ public class BillboardGrass : MonoBehaviour
     public Texture2D grassTexture;
     public ComputeShader grassComputeShader;
 
-    private int grassCount = 1000; // Adjust as needed
+    private int grassCount = 1000; // Number of grass instances
     private ComputeBuffer grassBuffer;
     private Material grassMaterial;
-    
+
     struct GrassData
     {
         public Vector3 position;
@@ -22,6 +22,8 @@ public class BillboardGrass : MonoBehaviour
 
     void InitializeGrass()
     {
+        Debug.Log("Initializing grass...");
+
         GrassData[] grassDataArray = new GrassData[grassCount];
         for (int i = 0; i < grassCount; i++)
         {
@@ -41,12 +43,22 @@ public class BillboardGrass : MonoBehaviour
         grassMaterial = new Material(Shader.Find("Unlit/BillboardGrass"));
         grassMaterial.SetTexture("_MainTex", grassTexture);
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
+
+        Debug.Log("Grass initialized.");
     }
 
     void OnRenderObject()
     {
+        if (grassMaterial == null)
+        {
+            Debug.LogWarning("Grass material is not initialized.");
+            return;
+        }
+
         grassMaterial.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Triangles, 6, grassCount);
+        Graphics.DrawProceduralNow(MeshTopology.Triangles, 18, grassCount);
+
+        Debug.Log("Grass rendered.");
     }
 
     void OnDestroy()
