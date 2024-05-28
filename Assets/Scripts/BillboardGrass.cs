@@ -7,6 +7,7 @@ public class BillboardGrass : MonoBehaviour {
     public Mesh grassMesh;
 
     private ComputeBuffer grassDataBuffer;
+    private ComputeShader computeShader;
     private int kernelIndex;
     private uint[] args = new uint[5] { 0, 0, 0, 0, 0 }; // Arguments for drawing mesh
 
@@ -34,9 +35,15 @@ public class BillboardGrass : MonoBehaviour {
         grassDataBuffer = new ComputeBuffer(numInstances, sizeof(float) * 6);
         grassDataBuffer.SetData(grassDataArray);
 
-        kernelIndex = grassMaterial.FindKernel("InitializeGrass");
-        grassMaterial.SetBuffer("_GrassDataBuffer", grassDataBuffer);
-        grassMaterial.SetInt("_Dimension", dimension);
+        computeShader = grassMaterial.shader as ComputeShader;
+        if (computeShader == null) {
+            Debug.LogError("Compute shader not found in the grass material.");
+            return;
+        }
+        
+        kernelIndex = computeShader.FindKernel("InitializeGrass");
+        computeShader.SetBuffer(kernelIndex, "_GrassDataBuffer", grassDataBuffer);
+        computeShader.SetInt("_Dimension", dimension);
 
         args[0] = (uint)grassMesh.GetIndexCount(0);
         args[1] = (uint)numInstances;
@@ -49,13 +56,8 @@ public class BillboardGrass : MonoBehaviour {
     void UpdateArgsBuffer() {
         ComputeBuffer argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         argsBuffer.SetData(args);
-        grassMaterial.SetBuffer("_GrassDataBuffer", grassDataBuffer);
+        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, Vector3.one * 10000.0f), argsBuffer);
         argsBuffer.Release();
-    }
-
-    void OnRenderObject() {
-        grassMaterial.SetPass(0);
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, Vector3.one * 10000.0f), 0, null, 0, null, UnityEngine.Rendering.ShadowCastingMode.Off, false);
     }
 
     void OnDestroy() {
