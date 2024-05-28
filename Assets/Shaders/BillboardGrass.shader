@@ -51,7 +51,6 @@ Shader "Unlit/BillboardGrass" {
 
             bool VertexIsBelowClipPlane(float3 p, int planeIndex, float bias) {
                 float4 plane = unity_CameraWorldClipPlanes[planeIndex];
-
                 return dot(float4(p, 1), plane) < bias;
             }   
 
@@ -77,8 +76,7 @@ Shader "Unlit/BillboardGrass" {
                     cosTime = cos(_Time.y * (_WindStrength - (grassPosition.w - 1.0f)));
                 else
                     cosTime = cos(_Time.y * ((_WindStrength - (grassPosition.w - 1.0f)) + localWindVariance * 0.1f));
-                    
-    
+
                 float trigValue = ((cosTime * cosTime) * 0.65f) - localWindVariance * 0.5f;
                 
                 localPosition.x += v.uv.y * trigValue * grassPosition.w * localWindVariance * 0.6f;
@@ -108,7 +106,6 @@ Shader "Unlit/BillboardGrass" {
                 float saturation = lerp(1.0f, i.saturationLevel, i.uv.y * i.uv.y * i.uv.y);
                 col.r /= saturation;
                 
-             
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
                 
