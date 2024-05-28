@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BillboardGrass : MonoBehaviour {
@@ -37,10 +39,10 @@ public class BillboardGrass : MonoBehaviour {
 
         computeShader = grassMaterial.shader as ComputeShader;
         if (computeShader == null) {
-            Debug.LogError("Compute shader not found in the grass material.");
+            Debug.LogError("The shader attached to the grass material is not a compute shader.");
             return;
         }
-        
+
         kernelIndex = computeShader.FindKernel("InitializeGrass");
         computeShader.SetBuffer(kernelIndex, "_GrassDataBuffer", grassDataBuffer);
         computeShader.SetInt("_Dimension", dimension);
