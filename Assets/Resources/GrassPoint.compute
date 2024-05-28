@@ -1,20 +1,17 @@
-#pragma kernel InitializeGrass
+#pragma kernel CSMain
 
-struct GrassData {
-    float4 position; // Position in world space (xyz) and scale (w)
-    float2 uv;       // UV coordinates for texture mapping
+struct GrassData
+{
+    float3 position;
+    float2 uv;
 };
 
-RWStructuredBuffer<GrassData> _GrassDataBuffer;
+RWStructuredBuffer<GrassData> grassBuffer;
 
-int _Dimension; // Number of grass objects per side
-
-[numthreads(8,8,1)]
-void InitializeGrass(uint3 id : SV_DispatchThreadID) {
-    if (id.x < uint(_Dimension) && id.y < uint(_Dimension)) {
-        GrassData grass;
-        grass.position = float4(float2(id.xy), 0.0f, 1.0f); // Grass position at 1-meter intervals
-        grass.uv = float2(id.x / float(_Dimension), id.y / float(_Dimension)); // UV coordinates
-        _GrassDataBuffer[id.x + id.y * _Dimension] = grass;
-    }
+[numthreads(10, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    GrassData data = grassBuffer[id.x];
+    // Here you can manipulate grass data if needed
+    grassBuffer[id.x] = data;
 }

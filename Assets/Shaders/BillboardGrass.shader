@@ -1,56 +1,59 @@
-Shader "Unlit/BillboardGrass" {
-    Properties {
+Shader "Unlit/BillboardGrass"
+{
+    Properties
+    {
         _MainTex ("Texture", 2D) = "white" {}
     }
-
-    SubShader {
-        Cull Off
-        Zwrite On
-
-        Pass {
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" }
+        Pass
+        {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            
-            #pragma target 4.5
 
-            struct VertexData {
-                float4 vertex : POSITION;
+            #include "UnityCG.cginc"
+
+            struct v2f
+            {
+                float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
             };
 
-            struct v2f {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-            };
-
-            struct GrassData {
-                float4 position;
+            struct GrassData
+            {
+                float3 position;
                 float2 uv;
             };
 
+            StructuredBuffer<GrassData> grassBuffer;
+
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            StructuredBuffer<GrassData> _GrassDataBuffer;
-            int _Dimension;
 
-            v2f vert (VertexData v, uint instanceID : SV_InstanceID) {
+            v2f vert (uint id : SV_VertexID)
+            {
+                GrassData data = grassBuffer[id / 6];
+
                 v2f o;
-            
-                GrassData data = _GrassDataBuffer[instanceID];
-                float4 worldPosition = float4(data.position.x, 0.0, data.position.z, 1.0);
+                float3 billboardPos = data.position;
+                float3 cameraRight = float3(1, 0, 0);
+                float3 cameraUp = float3(0, 1, 0);
 
-                o.vertex = UnityObjectToClipPos(worldPosition);
-                o.uv = v.uv;
-                
+                float3 quadPos = billboardPos;
+                quadPos += (id % 2 == 0 ? -0.5 : 0.5) * cameraRight;
+                quadPos += (id / 2 % 2 == 0 ? -0.5 : 0.5) * cameraUp;
+
+                o.pos = UnityObjectToClipPos(float4(quadPos, 1));
+                o.uv = TRANSFORM_TEX(data.uv, _MainTex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                return col;
+            fixed4 frag (v2f i) : SV_Target
+            {
+                return tex2D(_MainTex, i.uv);
             }
-
             ENDCG
         }
     }
