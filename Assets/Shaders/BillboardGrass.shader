@@ -39,19 +39,20 @@ Shader "Unlit/BillboardGrass"
 
                 v2f o;
                 float3 billboardPos = data.position;
-                float3 cameraRight = float3(1, 0, 0);
-                float3 cameraUp = float3(0, 1, 0);
 
-                float3 quadPos = billboardPos + v.vertex;
-
+                // For simplicity, just place the quad directly
+                float3 quadPos = v.vertex + billboardPos;
                 o.pos = UnityObjectToClipPos(float4(quadPos, 1));
-                o.uv = TRANSFORM_TEX(data.uv, _MainTex);
+
+                // Pass UVs from the vertex data
+                o.uv = v.texcoord.xy;
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
                 return tex2D(_MainTex, i.uv);
+                // return float4(i.uv, 0, 1);
             }
             ENDCG
         }
