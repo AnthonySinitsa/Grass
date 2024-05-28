@@ -51,8 +51,10 @@ Shader "Unlit/BillboardGrass"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return tex2D(_MainTex, i.uv);
-                // return float4(i.uv, 0, 1);
+                fixed4 texColor = tex2D(_MainTex, i.uv);
+                // Perform alpha clipping
+                if (texColor.a < 0.5) discard; // Adjust the threshold as needed
+                return texColor;
             }
             ENDCG
         }

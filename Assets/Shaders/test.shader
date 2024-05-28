@@ -44,7 +44,7 @@ Shader "Custom/UnlitTextureShader"
             fixed4 frag(v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                col.a *= _MainTex_ST.a; // Use _MainTex_ST.a instead of _MainTex.a
+                col.a *= col.a; // Use the alpha channel from the texture itself
                 return col;
             }
             ENDCG
