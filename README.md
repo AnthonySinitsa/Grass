@@ -28,3 +28,13 @@
 
 - Lets double amount of grass objects
   - Multiply `position *= (1 / Density)` (Density being 2)
+
+```
+fixed4 frag (v2f i) : SV_Target
+{
+    fixed4 texColor = tex2D(_MainTex, i.uv);
+    // Perform alpha clipping
+    if (texColor.a < 0.5) discard; // Adjust the threshold as needed
+    return texColor;
+}
+```

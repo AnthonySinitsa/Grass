@@ -1,4 +1,4 @@
-Shader "Custom/UnlitTextureShader"
+Shader "Custom/test"
 {
     Properties
     {
@@ -6,13 +6,10 @@ Shader "Custom/UnlitTextureShader"
     }
     SubShader
     {
-        Tags { "Queue" = "Transparent" "RenderType"="Opaque" }
-        LOD 100
-        
+        Tags { "RenderType"="Opaque" }
         Pass
         {
             Cull Off
-            Blend SrcAlpha OneMinusSrcAlpha
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -44,9 +41,10 @@ Shader "Custom/UnlitTextureShader"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                col.a *= col.a; // Use the alpha channel from the texture itself
-                return col;
+                fixed4 texColor = tex2D(_MainTex, i.uv);
+                // Perform alpha clipping
+                if (texColor.a < 0.5) discard; // Adjust the threshold as needed
+                return texColor;
             }
             ENDCG
         }
