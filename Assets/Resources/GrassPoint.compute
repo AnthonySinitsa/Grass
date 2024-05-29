@@ -2,16 +2,45 @@
 
 struct GrassData
 {
-    float3 position;
-    float2 uv;
+    float4 position;
+    float4 rotation;
 };
 
 RWStructuredBuffer<GrassData> grassBuffer;
 
+int gridWidth;
+int gridHeight;
+float spacing;
+
 [numthreads(10, 1, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    GrassData data = grassBuffer[id.x];
-    // Here you can manipulate grass data if needed
-    grassBuffer[id.x] = data;
+    int index = id.x;
+    int totalGrassInstances = gridWidth * gridHeight * 3;
+    if (index >= totalGrassInstances)
+        return;
+
+    int halfWidth = gridWidth / 2;
+    int halfHeight = gridHeight / 2;
+
+    int x = (index / 3) % gridWidth - halfWidth;
+    int z = (index / 3) / gridWidth - halfHeight;
+
+    GrassData data;
+    data.position = float4(x * spacing, 0, z * spacing, 0);
+
+    if (index % 3 == 0)
+    {
+        data.rotation = float4(0, 0, 0, 0); // No rotation
+    }
+    else if (index % 3 == 1)
+    {
+        data.rotation = float4(0, 60, 0, 0); // 60 degrees rotation
+    }
+    else
+    {
+        data.rotation = float4(0, -60, 0, 0); // -60 degrees rotation
+    }
+
+    grassBuffer[index] = data;
 }

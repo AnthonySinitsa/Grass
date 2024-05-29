@@ -38,3 +38,6 @@ fixed4 frag (v2f i) : SV_Target
     return texColor;
 }
 ```
+
+
+Shader warning in 'GrassPoint': integer modulus may be much slower, try using uints if possible. at kernel CSMain at GrassPoint.compute(36) (on d3d11)

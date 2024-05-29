@@ -169,8 +169,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   grassMaterial: {fileID: 2100000, guid: 191b353f8b3cd744e9d9f21ce47904ce, type: 2}
-  gridWidth: 1000
-  gridHeight: 1000
+  grassComputeShader: {fileID: 7200000, guid: 5d8e0ffb69893ff42902a2e28335b3eb, type: 3}
+  gridWidth: 460
+  gridHeight: 460
   spacing: 1
 --- !u!1 &705507993
 GameObject:

@@ -4,12 +4,12 @@ public class BillboardGrass : MonoBehaviour
 {
     public Mesh grassMesh; // Reference to the grass mesh (a single quad)
     public Material grassMaterial; // Reference to the grass material using the shader
+    public ComputeShader grassComputeShader; // Reference to the compute shader
     public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
     public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
     public float spacing = 1f; // Distance between each grass instance
 
-    private ComputeBuffer positionBuffer; // Buffer to hold position data for each grass instance
-    private ComputeBuffer rotationBuffer; // Buffer to hold rotation data for each grass instance
+    private ComputeBuffer grassBuffer; // Buffer to hold grass data (position and rotation)
     private ComputeBuffer argsBuffer; // Buffer to hold draw arguments for indirect rendering
 
     void Start()
@@ -22,45 +22,20 @@ public class BillboardGrass : MonoBehaviour
         Debug.Log("Initializing grass...");
 
         int grassCount = gridWidth * gridHeight * 3; // Total number of grass instances (3 quads per instance)
-        Vector4[] positions = new Vector4[grassCount];
-        Vector4[] rotations = new Vector4[grassCount];
 
-        int halfWidth = gridWidth / 2;
-        int halfHeight = gridHeight / 2;
-        int index = 0;
+        // Create and fill the grass buffer
+        grassBuffer = new ComputeBuffer(grassCount, sizeof(float) * 8);
+        grassMaterial.SetBuffer("grassBuffer", grassBuffer);
 
-        for (int x = -halfWidth; x < halfWidth; x++)
-        {
-            for (int z = -halfHeight; z < halfHeight; z++)
-            {
-                Vector3 basePosition = new Vector3(x * spacing, 0, z * spacing);
+        // Set up the compute shader
+        grassComputeShader.SetInt("gridWidth", gridWidth);
+        grassComputeShader.SetInt("gridHeight", gridHeight);
+        grassComputeShader.SetFloat("spacing", spacing);
+        grassComputeShader.SetBuffer(0, "grassBuffer", grassBuffer);
 
-                // First quad (no rotation)
-                positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
-                rotations[index] = new Vector4(0, 0, 0, 0);
-                index++;
-
-                // Second quad (60 degrees rotation)
-                positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
-                rotations[index] = new Vector4(0, 60, 0, 0);
-                index++;
-
-                // Third quad (-60 degrees rotation)
-                positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
-                rotations[index] = new Vector4(0, -60, 0, 0);
-                index++;
-            }
-        }
-
-        // Create and fill the position buffer
-        positionBuffer = new ComputeBuffer(grassCount, sizeof(float) * 4);
-        positionBuffer.SetData(positions);
-        grassMaterial.SetBuffer("positionBuffer", positionBuffer);
-
-        // Create and fill the rotation buffer
-        rotationBuffer = new ComputeBuffer(grassCount, sizeof(float) * 4);
-        rotationBuffer.SetData(rotations);
-        grassMaterial.SetBuffer("rotationBuffer", rotationBuffer);
+        // Dispatch the compute shader
+        int threadGroups = Mathf.CeilToInt(grassCount / 10.0f);
+        grassComputeShader.Dispatch(0, threadGroups, 1, 1);
 
         // Set up the draw arguments buffer
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)grassCount, 0, 0, 0 };
@@ -79,13 +54,9 @@ public class BillboardGrass : MonoBehaviour
     void OnDestroy()
     {
         // Release the buffers to free up GPU memory
-        if (positionBuffer != null)
+        if (grassBuffer != null)
         {
-            positionBuffer.Release();
-        }
-        if (rotationBuffer != null)
-        {
-            rotationBuffer.Release();
+            grassBuffer.Release();
         }
         if (argsBuffer != null)
         {
