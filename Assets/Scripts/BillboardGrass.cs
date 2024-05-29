@@ -4,8 +4,8 @@ public class BillboardGrass : MonoBehaviour
 {
     public Mesh grassMesh; // Reference to the grass mesh (a single quad)
     public Material grassMaterial; // Reference to the grass material using the shader
-    public int gridWidth = 100; // Width of the grid in meters
-    public int gridHeight = 100; // Height of the grid in meters
+    public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
+    public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
     public float spacing = 1f; // Distance between each grass instance
 
     private ComputeBuffer positionBuffer; // Buffer to hold position data for each grass instance
@@ -25,10 +25,13 @@ public class BillboardGrass : MonoBehaviour
         Vector4[] positions = new Vector4[grassCount];
         Vector4[] rotations = new Vector4[grassCount];
 
+        int halfWidth = gridWidth / 2;
+        int halfHeight = gridHeight / 2;
         int index = 0;
-        for (int x = 0; x < gridWidth; x++)
+
+        for (int x = -halfWidth; x < halfWidth; x++)
         {
-            for (int z = 0; z < gridHeight; z++)
+            for (int z = -halfHeight; z < halfHeight; z++)
             {
                 Vector3 basePosition = new Vector3(x * spacing, 0, z * spacing);
 
