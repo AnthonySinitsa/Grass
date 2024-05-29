@@ -9,6 +9,7 @@ public class BillboardGrass : MonoBehaviour
     public float spacing = 1f; // Distance between each grass instance
 
     private ComputeBuffer positionBuffer; // Buffer to hold position data for each grass instance
+    private ComputeBuffer rotationBuffer; // Buffer to hold rotation data for each grass instance
     private ComputeBuffer argsBuffer; // Buffer to hold draw arguments for indirect rendering
 
     void Start()
@@ -33,17 +34,17 @@ public class BillboardGrass : MonoBehaviour
 
                 // First quad (no rotation)
                 positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
-                rotations[index] = Quaternion.Euler(0, 0, 0).eulerAngles;
+                rotations[index] = new Vector4(0, 0, 0, 0);
                 index++;
 
                 // Second quad (60 degrees rotation)
                 positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
-                rotations[index] = Quaternion.Euler(0, 60, 0).eulerAngles;
+                rotations[index] = new Vector4(0, 60, 0, 0);
                 index++;
 
                 // Third quad (-60 degrees rotation)
                 positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
-                rotations[index] = Quaternion.Euler(0, -60, 0).eulerAngles;
+                rotations[index] = new Vector4(0, -60, 0, 0);
                 index++;
             }
         }
@@ -54,7 +55,7 @@ public class BillboardGrass : MonoBehaviour
         grassMaterial.SetBuffer("positionBuffer", positionBuffer);
 
         // Create and fill the rotation buffer
-        var rotationBuffer = new ComputeBuffer(grassCount, sizeof(float) * 4);
+        rotationBuffer = new ComputeBuffer(grassCount, sizeof(float) * 4);
         rotationBuffer.SetData(rotations);
         grassMaterial.SetBuffer("rotationBuffer", rotationBuffer);
 
@@ -78,6 +79,10 @@ public class BillboardGrass : MonoBehaviour
         if (positionBuffer != null)
         {
             positionBuffer.Release();
+        }
+        if (rotationBuffer != null)
+        {
+            rotationBuffer.Release();
         }
         if (argsBuffer != null)
         {

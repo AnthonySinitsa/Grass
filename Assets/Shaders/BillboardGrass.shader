@@ -37,10 +37,12 @@ Shader "Unlit/BillboardGrass"
                 float3 quadPos = v.vertex;
 
                 // Apply rotation
+                float cosAngle = cos(radians(rotation.y));
+                float sinAngle = sin(radians(rotation.y));
                 float4x4 rotationMatrix = float4x4(
-                    cos(rotation.y), 0, sin(rotation.y), 0,
+                    cosAngle, 0, sinAngle, 0,
                     0, 1, 0, 0,
-                    -sin(rotation.y), 0, cos(rotation.y), 0,
+                    -sinAngle, 0, cosAngle, 0,
                     0, 0, 0, 1
                 );
                 quadPos = mul(rotationMatrix, float4(quadPos, 1)).xyz;
