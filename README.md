@@ -12,6 +12,10 @@
 
 ![grass3](images/grass3.png)
 
+### Grass with position and height variance
+
+![grass4](images/grass4.png)
+
 ## Steps taken
  
 - 300x300 meter plane
@@ -40,6 +44,13 @@
 
 - Lets double amount of grass objects
   - Multiply `position *= (1 / Density)` (Density being 2)
+
+- Added some variants to the grass positions
+  - `pos.xz += noise()`
+
+- Added some variants to the height of the grass with simplex noise
+  - So that height variants are clumped together
+  - `pos.y *= noise()`
 
 ```
 fixed4 frag (v2f i) : SV_Target

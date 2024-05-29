@@ -31,15 +31,20 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     GrassData data;
     data.position = float4(x * spacing * 0.5, 0, z * spacing * 0.5, 0); // Halve the spacing
 
-    // Add Perlin noise to the position
+    // Add Perlin noise to vary the height of the grass
     float noiseX = snoise(float3(data.position.x, 0, data.position.z));
     float noiseY = snoise(float3(data.position.x * 0.5, 0, data.position.z * 0.5)); // Adjust the frequency for Y direction
     float noiseZ = snoise(float3(data.position.x * 0.5, 0, data.position.z * 0.5)); // Adjust the frequency for Z direction
 
     float noiseScale = 0.1; // Adjust the scale of the noise
-    data.position.x += noiseX * noiseScale;
-    data.position.y += noiseY * noiseScale;
-    data.position.z += noiseZ * noiseScale;
+    float minHeight = 0.5; // Minimum height of the grass
+    float maxHeight = 1.5; // Maximum height of the grass
+
+    // Vary the height of the grass based on the noise values
+    float height = minHeight + (maxHeight - minHeight) * (noiseX + noiseY + noiseZ) / 3.0;
+
+    // Apply the height variation
+    data.position.y += height;
 
     if ((index % 3u) == 0)
     {
