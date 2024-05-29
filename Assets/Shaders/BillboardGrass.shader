@@ -9,6 +9,7 @@ Shader "Unlit/BillboardGrass"
         Tags { "RenderType"="Opaque" }
         Pass
         {
+            Cull Off
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -22,30 +23,36 @@ Shader "Unlit/BillboardGrass"
                 float2 uv : TEXCOORD0;
             };
 
-            struct GrassData
-            {
-                float3 position;
-                float2 uv;
-            };
-
-            StructuredBuffer<GrassData> grassBuffer;
+            StructuredBuffer<float4> positionBuffer;
+            StructuredBuffer<float4> rotationBuffer;
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
             v2f vert (appdata_full v, uint id : SV_InstanceID)
             {
-                GrassData data = grassBuffer[id];
+                float4 position = positionBuffer[id];
+                float4 rotation = rotationBuffer[id];
+
+                float3 quadPos = v.vertex;
+
+                // Apply rotation
+                float cosAngle = cos(radians(rotation.y));
+                float sinAngle = sin(radians(rotation.y));
+                float4x4 rotationMatrix = float4x4(
+                    cosAngle, 0, sinAngle, 0,
+                    0, 1, 0, 0,
+                    -sinAngle, 0, cosAngle, 0,
+                    0, 0, 0, 1
+                );
+                quadPos = mul(rotationMatrix, float4(quadPos, 1)).xyz;
+
+                // Apply position
+                quadPos += position.xyz;
 
                 v2f o;
-                float3 billboardPos = data.position;
-
-                // For simplicity, just place the quad directly
-                float3 quadPos = v.vertex + billboardPos;
                 o.pos = UnityObjectToClipPos(float4(quadPos, 1));
-
-                // Pass UVs from the vertex data
-                o.uv = v.texcoord.xy;
+                o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
                 return o;
             }
 
