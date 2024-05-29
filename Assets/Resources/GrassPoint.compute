@@ -1,5 +1,7 @@
 #pragma kernel CSMain
 
+#include "Simplex.compute"
+
 struct GrassData
 {
     float4 position;
@@ -27,7 +29,17 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     int z = int((index / 3u) / gridWidth) - int(halfHeight);
 
     GrassData data;
-    data.position = float4(x * spacing * 0.5, 0, z * spacing * 0.5, 0);
+    data.position = float4(x * spacing * 0.5, 0, z * spacing * 0.5, 0); // Halve the spacing
+
+    // Add Perlin noise to the position
+    float noiseX = snoise(float3(data.position.x, 0, data.position.z));
+    float noiseY = snoise(float3(data.position.x * 0.5, 0, data.position.z * 0.5)); // Adjust the frequency for Y direction
+    float noiseZ = snoise(float3(data.position.x * 0.5, 0, data.position.z * 0.5)); // Adjust the frequency for Z direction
+
+    float noiseScale = 0.1; // Adjust the scale of the noise
+    data.position.x += noiseX * noiseScale;
+    data.position.y += noiseY * noiseScale;
+    data.position.z += noiseZ * noiseScale;
 
     if ((index % 3u) == 0)
     {

@@ -8,6 +8,10 @@
 
 ![grass2](images/grass2.png)
 
+### Randomized the grass position
+
+![grass3](images/grass3.png)
+
 ## Steps taken
  
 - 300x300 meter plane
