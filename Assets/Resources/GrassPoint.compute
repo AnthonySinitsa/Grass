@@ -8,32 +8,32 @@ struct GrassData
 
 RWStructuredBuffer<GrassData> grassBuffer;
 
-int gridWidth;
-int gridHeight;
+uint gridWidth;
+uint gridHeight;
 float spacing;
 
 [numthreads(10, 1, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    int index = id.x;
-    int totalGrassInstances = gridWidth * gridHeight * 3;
+    uint index = id.x;
+    uint totalGrassInstances = gridWidth * gridHeight * 3;
     if (index >= totalGrassInstances)
         return;
 
-    int halfWidth = gridWidth / 2;
-    int halfHeight = gridHeight / 2;
+    uint halfWidth = gridWidth / 2;
+    uint halfHeight = gridHeight / 2;
 
-    int x = (index / 3) % gridWidth - halfWidth;
-    int z = (index / 3) / gridWidth - halfHeight;
+    int x = int((index / 3u) % gridWidth) - int(halfWidth);
+    int z = int((index / 3u) / gridWidth) - int(halfHeight);
 
     GrassData data;
     data.position = float4(x * spacing, 0, z * spacing, 0);
 
-    if (index % 3 == 0)
+    if ((index % 3u) == 0)
     {
         data.rotation = float4(0, 0, 0, 0); // No rotation
     }
-    else if (index % 3 == 1)
+    else if ((index % 3u) == 1)
     {
         data.rotation = float4(0, 60, 0, 0); // 60 degrees rotation
     }
