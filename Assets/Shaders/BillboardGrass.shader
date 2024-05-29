@@ -16,6 +16,7 @@ Shader "Unlit/BillboardGrass"
             #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"
+            #include "../Resources/Random.cginc"
 
             struct v2f
             {
