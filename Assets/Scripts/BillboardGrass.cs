@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BillboardGrass : MonoBehaviour
 {
-    public Mesh grassMesh; // Reference to the grass mesh (with 3 intersecting quads)
+    public Mesh grassMesh; // Reference to the grass mesh (a single quad)
     public Material grassMaterial; // Reference to the grass material using the shader
     public int gridWidth = 100; // Width of the grid in meters
     public int gridHeight = 100; // Height of the grid in meters
@@ -20,16 +20,31 @@ public class BillboardGrass : MonoBehaviour
     {
         Debug.Log("Initializing grass...");
 
-        int grassCount = gridWidth * gridHeight; // Total number of grass instances
-        Vector4[] positions = new Vector4[grassCount]; // Array to hold the positions
+        int grassCount = gridWidth * gridHeight * 3; // Total number of grass instances (3 quads per instance)
+        Vector4[] positions = new Vector4[grassCount];
+        Vector4[] rotations = new Vector4[grassCount];
 
-        // Fill the positions array with the positions of each grass instance
+        int index = 0;
         for (int x = 0; x < gridWidth; x++)
         {
             for (int z = 0; z < gridHeight; z++)
             {
-                int index = x * gridHeight + z;
-                positions[index] = new Vector4(x * spacing, 0, z * spacing, 0);
+                Vector3 basePosition = new Vector3(x * spacing, 0, z * spacing);
+
+                // First quad (no rotation)
+                positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
+                rotations[index] = Quaternion.Euler(0, 0, 0).eulerAngles;
+                index++;
+
+                // Second quad (60 degrees rotation)
+                positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
+                rotations[index] = Quaternion.Euler(0, 60, 0).eulerAngles;
+                index++;
+
+                // Third quad (-60 degrees rotation)
+                positions[index] = new Vector4(basePosition.x, basePosition.y, basePosition.z, 0);
+                rotations[index] = Quaternion.Euler(0, -60, 0).eulerAngles;
+                index++;
             }
         }
 
@@ -37,6 +52,11 @@ public class BillboardGrass : MonoBehaviour
         positionBuffer = new ComputeBuffer(grassCount, sizeof(float) * 4);
         positionBuffer.SetData(positions);
         grassMaterial.SetBuffer("positionBuffer", positionBuffer);
+
+        // Create and fill the rotation buffer
+        var rotationBuffer = new ComputeBuffer(grassCount, sizeof(float) * 4);
+        rotationBuffer.SetData(rotations);
+        grassMaterial.SetBuffer("rotationBuffer", rotationBuffer);
 
         // Set up the draw arguments buffer
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)grassCount, 0, 0, 0 };

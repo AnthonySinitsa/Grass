@@ -24,6 +24,7 @@ Shader "Unlit/BillboardGrass"
             };
 
             StructuredBuffer<float4> positionBuffer;
+            StructuredBuffer<float4> rotationBuffer;
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -31,11 +32,24 @@ Shader "Unlit/BillboardGrass"
             v2f vert (appdata_full v, uint id : SV_InstanceID)
             {
                 float4 position = positionBuffer[id];
+                float4 rotation = rotationBuffer[id];
+
+                float3 quadPos = v.vertex;
+
+                // Apply rotation
+                float4x4 rotationMatrix = float4x4(
+                    cos(rotation.y), 0, sin(rotation.y), 0,
+                    0, 1, 0, 0,
+                    -sin(rotation.y), 0, cos(rotation.y), 0,
+                    0, 0, 0, 1
+                );
+                quadPos = mul(rotationMatrix, float4(quadPos, 1)).xyz;
+
+                // Apply position
+                quadPos += position.xyz;
 
                 v2f o;
-                float3 quadPos = v.vertex + position.xyz;
                 o.pos = UnityObjectToClipPos(float4(quadPos, 1));
-
                 o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
                 return o;
             }
