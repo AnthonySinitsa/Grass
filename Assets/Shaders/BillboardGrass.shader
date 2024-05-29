@@ -23,8 +23,6 @@ Shader "Unlit/BillboardGrass"
                 float2 uv : TEXCOORD0;
             };
 
-            // StructuredBuffer<float4> positionBuffer;
-            // StructuredBuffer<float4> rotationBuffer;
             StructuredBuffer<float4> grassBuffer;
 
             sampler2D _MainTex;

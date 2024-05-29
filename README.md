@@ -1,5 +1,9 @@
 # Grass
 
+### 211,600 grass rendered(2,539,200 vertices)
+
+![grass1](images/grass1.png)
+
 ## Steps taken
  
 - 300x300 meter plane
