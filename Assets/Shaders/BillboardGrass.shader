@@ -15,6 +15,8 @@ Shader "Unlit/BillboardGrass"
             #pragma fragment frag
             #pragma multi_compile_instancing
 
+            #include "UnityPBSLighting.cginc"
+            #include "AutoLight.cginc"
             #include "UnityCG.cginc"
             #include "../Resources/Random.cginc"
 
@@ -22,6 +24,7 @@ Shader "Unlit/BillboardGrass"
             {
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float saturationLevel : TEXCOORD1;
             };
 
             StructuredBuffer<float4> grassBuffer;
@@ -53,15 +56,26 @@ Shader "Unlit/BillboardGrass"
                 v2f o;
                 o.pos = UnityObjectToClipPos(float4(quadPos, 1));
                 o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.saturationLevel = 1.0 - ((grassBuffer[id].w - 1.0f) / 1.5f);
+                o.saturationLevel = max(o.saturationLevel, 0.5f);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 texColor = tex2D(_MainTex, i.uv);
-                // Perform alpha clipping
-                if (texColor.a < 0.5) discard; // Adjust the threshold as needed
-                return texColor;
+                fixed4 col = tex2D(_MainTex, i.uv);
+                clip(-(0.5 - col.a));
+
+                float luminance = LinearRgbToLuminance(col);
+
+                float saturation = lerp(1.0f, i.saturationLevel, i.uv.y * i.uv.y * i.uv.y);
+                col.r /= saturation;
+                
+             
+                float3 lightDir = _WorldSpaceLightPos0.xyz;
+                float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
+                
+                return col * ndotl;
             }
             ENDCG
         }
