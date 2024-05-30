@@ -10,7 +10,7 @@ struct GrassData
 
 RWStructuredBuffer<GrassData> _GrassBuffer;
 
-uint _GridWidth, _GridHeight, _Dimension;
+uint _GridWidth, _GridHeight, _Dimension, _Scale;
 float _DisplacementStrength, _Spacing;
 
 [numthreads(10, 1, 1)]
@@ -23,31 +23,13 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     GrassData grass;
 
-    // float4 pos = 0.0;
-    // pos.xz = (id.xy - float(_Dimension) * 0.5) * (1.0 / float(_Spacing));
-
-    uint x = int((index / 3u) % _GridWidth);
-    uint z = int((index / 3u) / _GridHeight);
+    int x = int((index / 3u) % _GridWidth);
+    int z = int((index / 3u) / _GridWidth);
     grass.position = float4(x * _Spacing * 0.5, 0, z * _Spacing * 0.5, 0);
-
-    float noiseX = snoise(float3(grass.position.x, 0, grass.position.z));
-    float noiseY = snoise(float3(grass.position.x * 0.5, 0, grass.position.z * 0.5));
-    float noiseZ = snoise(float3(grass.position.x * 0.5, 0, grass.position.z * 0.5));
-
-    float noiseScale = 3.0;
-    float minHeight = 0.5;
-    float maxHeight = 1.0; 
-
-    // Vary the height of the grass based on the noise values
-    float height = minHeight + (maxHeight - minHeight) * (noiseX + noiseY + noiseZ) / noiseScale;
-
-    float noise = abs(snoise(float3(grass.position.x, 0.0, grass.position.z) * 0.2));
-    grass.position.w = lerp(0.3, 0.6, noise);
-
-    // Apply the height variation
-    grass.position.y += height + 0.5;
-
-
+    grass.position.y += 
+        abs(snoise(float3(
+            grass.position.x * 10.0f, 0.0f, grass.position.z * 10.0f) * _DisplacementStrength
+        ));
 
 
     if ((index % 3u) == 0)
