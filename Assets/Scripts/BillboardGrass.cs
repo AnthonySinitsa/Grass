@@ -7,11 +7,11 @@ public class BillboardGrass : MonoBehaviour
     public ComputeShader grassComputeShader; // Reference to the compute shader
     public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
     public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
-    public float spacing = 1f; // Distance between each grass instance
-    
+    public float displacementStrength = 200.0f;
+    public int spacing = 1; // Distance between each grass instance
 
-    private ComputeBuffer grassBuffer; // Buffer to hold grass data (position and rotation)
-    private ComputeBuffer argsBuffer; // Buffer to hold draw arguments for indirect rendering
+
+    private ComputeBuffer grassBuffer, argsBuffer; // Buffer to hold grass data (position and rotation)
 
     void Start()
     {
@@ -28,9 +28,14 @@ public class BillboardGrass : MonoBehaviour
         grassBuffer = new ComputeBuffer(grassCount, sizeof(float) * 8);
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
 
+        int resolution = gridWidth * gridHeight;
+
         // Set up the compute shader
+        grassComputeShader.SetInt("_Dimension", resolution);
+        grassComputeShader.SetInt("_Scale", spacing);
         grassComputeShader.SetInt("gridWidth", gridWidth);
         grassComputeShader.SetInt("gridHeight", gridHeight);
+        grassComputeShader.SetFloat("displacementStrength", displacementStrength);
         grassComputeShader.SetFloat("spacing", spacing);
         grassComputeShader.SetBuffer(0, "grassBuffer", grassBuffer);
 
