@@ -8,6 +8,7 @@ public class BillboardGrass : MonoBehaviour
     public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
     public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
     public float spacing = 1f; // Distance between each grass instance
+    
 
     private ComputeBuffer grassBuffer; // Buffer to hold grass data (position and rotation)
     private ComputeBuffer argsBuffer; // Buffer to hold draw arguments for indirect rendering
