@@ -28,7 +28,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     grass.position = float4(x * _Spacing * 0.5, 0, z * _Spacing * 0.5, 0);
     grass.position.y += 
         abs(snoise(float3(
-            grass.position.x * 10.0f, 0.0f, grass.position.z * 10.0f) * _DisplacementStrength
+            grass.position.xz * 10.0f, 0.0f) * _DisplacementStrength
         ));
 
 

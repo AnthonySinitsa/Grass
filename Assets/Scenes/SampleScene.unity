@@ -170,8 +170,8 @@ MonoBehaviour:
   grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   grassMaterial: {fileID: 2100000, guid: 191b353f8b3cd744e9d9f21ce47904ce, type: 2}
   grassComputeShader: {fileID: 7200000, guid: 5d8e0ffb69893ff42902a2e28335b3eb, type: 3}
-  resolution: 1000
-  scale: 655
+  gridWidth: 465
+  gridHeight: 465
   displacementStrength: 1
   spacing: 1
 --- !u!1 &705507993
