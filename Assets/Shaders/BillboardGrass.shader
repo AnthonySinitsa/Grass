@@ -16,6 +16,7 @@ Shader "Unlit/BillboardGrass"
             #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"
+            #include "../Resources/Random.cginc"
 
             struct v2f
             {
@@ -23,16 +24,15 @@ Shader "Unlit/BillboardGrass"
                 float2 uv : TEXCOORD0;
             };
 
-            StructuredBuffer<float4> positionBuffer;
-            StructuredBuffer<float4> rotationBuffer;
+            StructuredBuffer<float4> grassBuffer;
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
             v2f vert (appdata_full v, uint id : SV_InstanceID)
             {
-                float4 position = positionBuffer[id];
-                float4 rotation = rotationBuffer[id];
+                float4 position = grassBuffer[id * 2];
+                float4 rotation = grassBuffer[id * 2 + 1];
 
                 float3 quadPos = v.vertex;
 
