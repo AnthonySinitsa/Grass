@@ -8,7 +8,7 @@ public class BillboardGrass : MonoBehaviour
     public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
     public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
     public float displacementStrength = 200.0f;
-    public int spacing = 1; // Distance between each grass instance
+    public float spacing = 1f; // Distance between each grass instance
 
 
     private ComputeBuffer grassBuffer, argsBuffer; // Buffer to hold grass data (position and rotation)
@@ -32,12 +32,11 @@ public class BillboardGrass : MonoBehaviour
 
         // Set up the compute shader
         grassComputeShader.SetInt("_Dimension", resolution);
-        grassComputeShader.SetInt("_Scale", spacing);
-        grassComputeShader.SetInt("gridWidth", gridWidth);
-        grassComputeShader.SetInt("gridHeight", gridHeight);
-        grassComputeShader.SetFloat("displacementStrength", displacementStrength);
-        grassComputeShader.SetFloat("spacing", spacing);
-        grassComputeShader.SetBuffer(0, "grassBuffer", grassBuffer);
+        grassComputeShader.SetFloat("_Spacing", spacing);
+        grassComputeShader.SetInt("_GridWidth", gridWidth);
+        grassComputeShader.SetInt("_GridHeight", gridHeight);
+        grassComputeShader.SetFloat("_DisplacementStrength", displacementStrength);
+        grassComputeShader.SetBuffer(0, "_GrassBuffer", grassBuffer);
 
         // Dispatch the compute shader
         int threadGroups = Mathf.CeilToInt(grassCount / 10.0f);
