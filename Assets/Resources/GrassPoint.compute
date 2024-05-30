@@ -8,56 +8,42 @@ struct GrassData
     float4 rotation;
 };
 
-RWStructuredBuffer<GrassData> grassBuffer;
+RWStructuredBuffer<GrassData> _GrassBuffer;
 
-uint gridWidth;
-uint gridHeight;
-float spacing;
+uint _GridWidth, _GridHeight, _Dimension, _Scale;
+float _DisplacementStrength, _Spacing;
 
 [numthreads(10, 1, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint index = id.x;
-    uint totalGrassInstances = gridWidth * gridHeight * 3;
+    uint totalGrassInstances = _Dimension * 3;
     if (index >= totalGrassInstances)
         return;
 
-    uint halfWidth = gridWidth / 2;
-    uint halfHeight = gridHeight / 2;
+    GrassData grass;
 
-    int x = int((index / 3u) % gridWidth) - int(halfWidth);
-    int z = int((index / 3u) / gridWidth) - int(halfHeight);
+    int x = int((index / 3u) % _GridWidth);
+    int z = int((index / 3u) / _GridWidth);
+    grass.position = float4(x * _Spacing * 0.5, 0, z * _Spacing * 0.5, 0);
+    grass.position.y += 
+        abs(snoise(float3(
+            grass.position.xz * 10.0f, 0.0f) * _DisplacementStrength
+        ));
 
-    GrassData data;
-    data.position = float4(x * spacing * 0.5, 0, z * spacing * 0.5, 0); // Halve the spacing
-
-    // Add Perlin noise to vary the height of the grass
-    float noiseX = snoise(float3(data.position.x, 0, data.position.z));
-    float noiseY = snoise(float3(data.position.x * 0.5, 0, data.position.z * 0.5)); // Adjust the frequency for Y direction
-    float noiseZ = snoise(float3(data.position.x * 0.5, 0, data.position.z * 0.5)); // Adjust the frequency for Z direction
-
-    float noiseScale = 0.1; // Adjust the scale of the noise
-    float minHeight = 0.5; // Minimum height of the grass
-    float maxHeight = 1.5; // Maximum height of the grass
-
-    // Vary the height of the grass based on the noise values
-    float height = minHeight + (maxHeight - minHeight) * (noiseX + noiseY + noiseZ) / 3.0;
-
-    // Apply the height variation
-    data.position.y += height;
 
     if ((index % 3u) == 0)
     {
-        data.rotation = float4(0, 0, 0, 0); // No rotation
+        grass.rotation = float4(0, 0, 0, 0); // No rotation
     }
     else if ((index % 3u) == 1)
     {
-        data.rotation = float4(0, 60, 0, 0); // 60 degrees rotation
+        grass.rotation = float4(0, 60, 0, 0); // 60 degrees rotation
     }
     else
     {
-        data.rotation = float4(0, -60, 0, 0); // -60 degrees rotation
+        grass.rotation = float4(0, -60, 0, 0); // -60 degrees rotation
     }
 
-    grassBuffer[index] = data;
+    _GrassBuffer[index] = grass;
 }

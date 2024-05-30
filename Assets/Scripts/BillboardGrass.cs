@@ -7,10 +7,11 @@ public class BillboardGrass : MonoBehaviour
     public ComputeShader grassComputeShader; // Reference to the compute shader
     public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
     public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
+    public float displacementStrength = 200.0f;
     public float spacing = 1f; // Distance between each grass instance
 
-    private ComputeBuffer grassBuffer; // Buffer to hold grass data (position and rotation)
-    private ComputeBuffer argsBuffer; // Buffer to hold draw arguments for indirect rendering
+
+    private ComputeBuffer grassBuffer, argsBuffer; // Buffer to hold grass data (position and rotation)
 
     void Start()
     {
@@ -20,18 +21,22 @@ public class BillboardGrass : MonoBehaviour
     void InitializeGrass()
     {
         Debug.Log("Initializing grass...");
-
-        int grassCount = gridWidth * gridHeight * 3; // Total number of grass instances (3 quads per instance)
+        
+        int grassCount  = gridWidth * gridHeight * 3;
 
         // Create and fill the grass buffer
         grassBuffer = new ComputeBuffer(grassCount, sizeof(float) * 8);
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
 
+        int resolution = gridWidth * gridHeight;
+
         // Set up the compute shader
-        grassComputeShader.SetInt("gridWidth", gridWidth);
-        grassComputeShader.SetInt("gridHeight", gridHeight);
-        grassComputeShader.SetFloat("spacing", spacing);
-        grassComputeShader.SetBuffer(0, "grassBuffer", grassBuffer);
+        grassComputeShader.SetInt("_Dimension", resolution);
+        grassComputeShader.SetFloat("_Spacing", spacing);
+        grassComputeShader.SetInt("_GridWidth", gridWidth);
+        grassComputeShader.SetInt("_GridHeight", gridHeight);
+        grassComputeShader.SetFloat("_DisplacementStrength", displacementStrength);
+        grassComputeShader.SetBuffer(0, "_GrassBuffer", grassBuffer);
 
         // Dispatch the compute shader
         int threadGroups = Mathf.CeilToInt(grassCount / 10.0f);
@@ -39,7 +44,10 @@ public class BillboardGrass : MonoBehaviour
 
         // Set up the draw arguments buffer
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)grassCount, 0, 0, 0 };
-        argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
+        argsBuffer = 
+            new ComputeBuffer(
+                1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments
+            );
         argsBuffer.SetData(args);
 
         Debug.Log("Grass initialized.");
@@ -48,7 +56,13 @@ public class BillboardGrass : MonoBehaviour
     void Update()
     {
         // Draw the grass instances using GPU instancing
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(gridWidth * spacing, 10, gridHeight * spacing)), argsBuffer);
+        Graphics.DrawMeshInstancedIndirect(
+            grassMesh, 0, grassMaterial, new Bounds(
+                Vector3.zero, new Vector3(
+                    1000.0f, 200.0f, 500.0f
+                )
+            ), argsBuffer
+        );
     }
 
     void OnDestroy()
