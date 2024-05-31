@@ -1,5 +1,9 @@
 # Grass
 
+![fog](images/fog.gif)
+
+## Steps taken
+
 ### 211,600 grass rendered(2,539,200 vertices)
 
 ![grass1](images/grass1.png)
@@ -20,8 +24,6 @@
 
 ![wind2](images/wind2.gif)
 ![wind](images/wind.gif)
-
-## Steps taken
  
 - 2 triangles that form a quad of grass, technique known as billboarding
 
