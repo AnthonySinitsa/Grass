@@ -1,5 +1,7 @@
 # Grass
 
+This is a repo I am using to learn different ways to render grass. This first variant uses billboarding, next will be using an actuall 3d model. 
+
 ![fog](images/fog.gif)
 
 ## Steps taken
