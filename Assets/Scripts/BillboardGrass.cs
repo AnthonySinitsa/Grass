@@ -10,9 +10,10 @@ public class BillboardGrass : MonoBehaviour
     public float displacementStrength = 200.0f;
     public float spacing = 1f;
     public float frequency = 0.1f;
+    public bool grassUpdate = false;
+
 
     private float density = 0.5f;
-
     private ComputeBuffer grassBuffer, argsBuffer; // Buffer to hold grass data (position and rotation)
 
     void Start()
@@ -25,7 +26,7 @@ public class BillboardGrass : MonoBehaviour
         Debug.Log("Initializing grass...");
         
         int grassCount  = gridWidth * gridHeight * 3;
-
+        
         // Create and fill the grass buffer
         grassBuffer = new ComputeBuffer(grassCount, sizeof(float) * 8);
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
@@ -59,6 +60,12 @@ public class BillboardGrass : MonoBehaviour
 
     void Update()
     {
+        if (grassUpdate)
+        {
+            InitializeGrass();
+            grassUpdate = false; // Reset the update flag
+        }
+        
         // Draw the grass instances using GPU instancing
         Graphics.DrawMeshInstancedIndirect(
             grassMesh, 0, grassMaterial, new Bounds(
