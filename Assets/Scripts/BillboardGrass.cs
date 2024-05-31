@@ -41,7 +41,7 @@ public class BillboardGrass : MonoBehaviour
         grassComputeShader.SetFloat("_DisplacementStrength", displacementStrength);
         grassComputeShader.SetFloat("_Density", density);
         grassComputeShader.SetFloat("_Frequency", frequency);
-        grassComputeShader.SetBuffer(0, "_GrassBuffer", grassBuffer);
+        grassComputeShader.SetBuffer(0, "grassBuffer", grassBuffer);
 
         // Dispatch the compute shader
         int threadGroups = Mathf.CeilToInt(grassCount / 10.0f);

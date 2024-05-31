@@ -26,6 +26,7 @@ Shader "Unlit/BillboardGrass"
                 float2 uv : TEXCOORD0;
                 float saturationLevel : TEXCOORD1;
             };
+            
 
             StructuredBuffer<float4> grassBuffer;
 

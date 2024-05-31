@@ -8,7 +8,7 @@ struct GrassData
     float4 rotation;
 };
 
-RWStructuredBuffer<GrassData> _GrassBuffer;
+RWStructuredBuffer<GrassData> grassBuffer;
 
 uint _GridWidth, _GridHeight, _Dimension, _Scale;
 float _DisplacementStrength, _Spacing, _Density, _Frequency;
@@ -48,5 +48,5 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         grass.rotation = float4(0, -60, 0, 0); // -60 degrees rotation
     }
 
-    _GrassBuffer[index] = grass;
+    grassBuffer[index] = grass;
 }
