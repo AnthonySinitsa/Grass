@@ -11,7 +11,7 @@ struct GrassData
 RWStructuredBuffer<GrassData> _GrassBuffer;
 
 uint _GridWidth, _GridHeight, _Dimension, _Scale;
-float _DisplacementStrength, _Spacing;
+float _DisplacementStrength, _Spacing, _Density, _Frequency;
 
 [numthreads(10, 1, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
@@ -25,12 +25,11 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     int x = int((index / 3u) % _GridWidth);
     int z = int((index / 3u) / _GridHeight);
-    
-    float _Density = 0.5;
+
     grass.position = float4(x * _Spacing * _Density, 0, z * _Spacing * _Density, 0);
     grass.position.y += 
         abs(snoise(float3(
-            grass.position.xz * 10.0, 0.0) * _DisplacementStrength
+            grass.position.xz * _Frequency, 0.0) * _DisplacementStrength
         ));
 
 

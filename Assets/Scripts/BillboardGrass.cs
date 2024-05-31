@@ -2,14 +2,16 @@ using UnityEngine;
 
 public class BillboardGrass : MonoBehaviour
 {
-    public Mesh grassMesh; // Reference to the grass mesh (a single quad)
-    public Material grassMaterial; // Reference to the grass material using the shader
-    public ComputeShader grassComputeShader; // Reference to the compute shader
-    public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
-    public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
+    public Mesh grassMesh;
+    public Material grassMaterial;
+    public ComputeShader grassComputeShader;
+    public int gridWidth = 100;
+    public int gridHeight = 100;
     public float displacementStrength = 200.0f;
-    public float spacing = 1f; // Distance between each grass instance
+    public float spacing = 1f;
+    public float frequency = 0.1f;
 
+    private float density = 0.5f;
 
     private ComputeBuffer grassBuffer, argsBuffer; // Buffer to hold grass data (position and rotation)
 
@@ -36,6 +38,8 @@ public class BillboardGrass : MonoBehaviour
         grassComputeShader.SetInt("_GridWidth", gridWidth);
         grassComputeShader.SetInt("_GridHeight", gridHeight);
         grassComputeShader.SetFloat("_DisplacementStrength", displacementStrength);
+        grassComputeShader.SetFloat("_Density", density);
+        grassComputeShader.SetFloat("_Frequency", frequency);
         grassComputeShader.SetBuffer(0, "_GrassBuffer", grassBuffer);
 
         // Dispatch the compute shader
