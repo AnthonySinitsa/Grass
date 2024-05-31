@@ -25,11 +25,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     int x = int((index / 3u) % _GridWidth);
     int z = int((index / 3u) / _GridHeight);
+    
     float _Density = 0.5;
     grass.position = float4(x * _Spacing * _Density, 0, z * _Spacing * _Density, 0);
     grass.position.y += 
         abs(snoise(float3(
-            grass.position.xz * 10.0f, 0.0f) * _DisplacementStrength
+            grass.position.xz * 10.0, 0.0) * _DisplacementStrength
         ));
 
 
