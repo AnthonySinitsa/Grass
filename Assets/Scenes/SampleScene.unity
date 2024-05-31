@@ -136,12 +136,12 @@ GameObject:
   - component: {fileID: 192515296}
   - component: {fileID: 192515295}
   m_Layer: 0
-  m_Name: Quad
+  m_Name: TestQuad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &192515295
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -276,8 +276,8 @@ MonoBehaviour:
   grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   grassMaterial: {fileID: 2100000, guid: 191b353f8b3cd744e9d9f21ce47904ce, type: 2}
   grassComputeShader: {fileID: 7200000, guid: 5d8e0ffb69893ff42902a2e28335b3eb, type: 3}
-  gridWidth: 1
-  gridHeight: 1
+  gridWidth: 465
+  gridHeight: 465
   displacementStrength: 1
   spacing: 1
   frequency: 0.1
@@ -462,8 +462,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.10982052, y: 0.052877907, z: -0.0058679264, w: 0.9925266}
-  m_LocalPosition: {x: 115, y: 2.371715, z: 100}
+  m_LocalRotation: {x: -0.0065304376, y: -0.3000515, z: 0.002072423, w: -0.95389843}
+  m_LocalPosition: {x: 114.3575, y: 1.9277761, z: 104.899574}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -28,6 +28,11 @@ Shader "Custom/Terrain"
         {
             // Albedo
             fixed4 c = tex2D(_MainTex, IN.uv_MainTex);
+
+            // Adjust brightness by multiplying the albedo color with a factor
+            float brightnessFactor = 0.5; // Adjust this value as needed
+            c.rgb *= brightnessFactor;
+
             o.Albedo = c.rgb;
 
             // Normal map
@@ -36,6 +41,7 @@ Shader "Custom/Terrain"
             normalTex.rgb = normalize(normalTex.rgb);
             o.Normal = normalize(o.Normal + normalTex.rgb * _NormalStrength);
         }
+
         ENDCG
     }
 
