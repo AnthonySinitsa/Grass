@@ -72,15 +72,10 @@ Shader "Unlit/BillboardGrass"
             {
                 v2f o;
 
-                GrassData grass = grassBuffer[id];
-                float4 position = grass.position;
-                float4 rotation = grass.rotation;
-                float3 quadPos = v.vertex;
-
-
-                float3 localPosition = RotateAroundYInDegrees(v.vertex, rotation).xyz;
-                float localWindVariance = min(max(0.4, randValue(id)), 0.75);
                 float4 grassPosition = grassBuffer[id].position;
+                float4 grassRotation = grassBuffer[id].rotation;
+                float3 localPosition = RotateAroundYInDegrees(v.vertex, grassRotation).xyz;
+                float localWindVariance = min(max(0.4, randValue(id)), 0.75);
 
                 float cosTime;
                 if (localWindVariance > 0.6)

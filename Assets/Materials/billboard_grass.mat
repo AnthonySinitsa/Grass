@@ -68,7 +68,7 @@ Material:
     m_Floats:
     - PixelSnap: 0
     - _BumpScale: 1
-    - _CullingBias: 0.5
+    - _CullingBias: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
@@ -76,7 +76,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 1
     - _GlossyReflections: 1
-    - _LODCutoff: 100
+    - _LODCutoff: 10
     - _Metallic: 0
     - _Mode: 3
     - _OcclusionStrength: 1
