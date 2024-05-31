@@ -26,7 +26,7 @@ public class BillboardGrass : MonoBehaviour
         Debug.Log("Initializing grass...");
         
         int grassCount  = gridWidth * gridHeight * 3;
-        
+
         // Create and fill the grass buffer
         grassBuffer = new ComputeBuffer(grassCount, sizeof(float) * 8);
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
@@ -63,7 +63,7 @@ public class BillboardGrass : MonoBehaviour
         if (grassUpdate)
         {
             InitializeGrass();
-            grassUpdate = false; // Reset the update flag
+            grassUpdate = false;
         }
         
         // Draw the grass instances using GPU instancing
