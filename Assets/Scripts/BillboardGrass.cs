@@ -13,7 +13,7 @@ public class BillboardGrass : MonoBehaviour
     public bool grassUpdate = false;
 
 
-    private float density = 0.5f;
+    private float density = 0.4f;
     private ComputeBuffer grassBuffer, argsBuffer; // Buffer to hold grass data (position and rotation)
 
     void Start()
