@@ -10,7 +10,7 @@ This is a repo I am using to learn different ways to render grass. This first va
 
 ![grass1](images/grass1.png)
 
-### 423,200 grass rendered(5,078,400 vertices)
+### Increased density
 
 ![grass2](images/grass2.png)
 
