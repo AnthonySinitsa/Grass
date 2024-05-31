@@ -27,16 +27,21 @@ Shader "Unlit/BillboardGrass"
                 float saturationLevel : TEXCOORD1;
             };
             
+            struct GrassData {
+                float4 position;
+                float4 rotation;
+            };
 
-            StructuredBuffer<float4> grassBuffer;
+            StructuredBuffer<GrassData> grassBuffer;
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
             v2f vert (appdata_full v, uint id : SV_InstanceID)
             {
-                float4 position = grassBuffer[id * 2];
-                float4 rotation = grassBuffer[id * 2 + 1];
+                GrassData grass = grassBuffer[id];
+                float4 position = grass.position;
+                float4 rotation = grass.rotation;
 
                 float3 quadPos = v.vertex;
 
@@ -57,7 +62,7 @@ Shader "Unlit/BillboardGrass"
                 v2f o;
                 o.pos = UnityObjectToClipPos(float4(quadPos, 1));
                 o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
-                o.saturationLevel = 1.0 - ((grassBuffer[id].w - 1.0f) / 1.5f);
+                o.saturationLevel = 1.0 - ((position.w - 1.0f) / 1.5f);
                 o.saturationLevel = max(o.saturationLevel, 0.5f);
                 return o;
             }
