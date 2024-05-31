@@ -280,7 +280,7 @@ MonoBehaviour:
   gridHeight: 465
   displacementStrength: 1
   spacing: 1
-  frequency: 0.1
+  frequency: 0.2
   grassUpdate: 0
 --- !u!1 &705507993
 GameObject:
