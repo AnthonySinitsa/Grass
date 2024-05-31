@@ -35,28 +35,24 @@ Shader "Unlit/BillboardGrass"
                 float4 rotation;
             };
 
-            
             sampler2D _MainTex;
             float4 _MainTex_ST;
             StructuredBuffer<GrassData> grassBuffer;
             float _Rotation, _WindStrength, _CullingBias, _DisplacementStrength, _LODCutoff;
 
-
-
             // Function to rotate individual grass blades
-            float4 RotateAroundYInDegrees (float4 vertex, float degrees) {
-                float alpha = degrees * UNITY_PI / 180.0;
+            float4 RotateAroundYInDegrees (float3 vertex, float4 rotation) {
+                float alpha = rotation.y * UNITY_PI / 180.0;
                 float sina, cosa;
                 sincos(alpha, sina, cosa);
-                float2x2 m = float2x2(cosa, -sina, sina, cosa);
-                return float4(mul(m, vertex.xz), vertex.yw).xzyw;
+                float3x3 m = float3x3(cosa, 0, sina, 0, 1, 0, -sina, 0, cosa);
+                return float4(mul(m, vertex), 1.0);
             }
 
             bool VertexIsBelowClipPlane(float3 p, int planeIndex, float bias) {
                 float4 plane = unity_CameraWorldClipPlanes[planeIndex];
-
                 return dot(float4(p, 1), plane) < bias;
-            }   
+            }
 
             bool cullVertex(float3 p, float bias) {
                 return  distance(_WorldSpaceCameraPos, p) > _LODCutoff ||
@@ -66,15 +62,14 @@ Shader "Unlit/BillboardGrass"
                         VertexIsBelowClipPlane(p, 3, -max(1.0f, _DisplacementStrength));
             }
 
-
-
             v2f vert (appdata_full v, uint id : SV_InstanceID)
             {
                 v2f o;
 
-                float4 grassPosition = grassBuffer[id].position;
-                float4 grassRotation = grassBuffer[id].rotation;
-                float3 localPosition = RotateAroundYInDegrees(v.vertex, grassRotation).xyz;
+                GrassData grass = grassBuffer[id];
+                float4 grassPosition = grass.position;
+                float4 grassRotation = grass.rotation;
+                float3 localPosition = RotateAroundYInDegrees(v.vertex.xyz, grassRotation).xyz;
                 float localWindVariance = min(max(0.4, randValue(id)), 0.75);
 
                 float cosTime;
@@ -91,13 +86,13 @@ Shader "Unlit/BillboardGrass"
 
                 float4 worldPosition = float4(grassPosition.xyz + localPosition, 1.0);
 
-                // if (cullVertex(worldPosition, -_CullingBias * max(1.0, _DisplacementStrength)))
-                //     o.pos = 0.0;
+                // if (cullVertex(worldPosition.xyz, -_CullingBias * max(1.0, _DisplacementStrength)))
+                //     o.pos = float4(0.0, 0.0, 0.0, 0.0); // Ensure we initialize o.pos
                 // else
                     o.pos = UnityObjectToClipPos(worldPosition);
 
                 o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
-                o.saturationLevel = 1.0 - ((grassBuffer[id].position.w - 1.0) / 1.5);
+                o.saturationLevel = 1.0 - ((grassPosition.w - 1.0) / 1.5);
                 o.saturationLevel = max(o.saturationLevel, 0.5);
                 return o;
             }
@@ -111,11 +106,10 @@ Shader "Unlit/BillboardGrass"
 
                 float saturation = lerp(1.0, i.saturationLevel, i.uv.y * i.uv.y * i.uv.y);
                 col.r /= saturation;
-                
-             
+
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
-                
+
                 return col * ndotl;
             }
             ENDCG
