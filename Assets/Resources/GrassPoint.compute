@@ -43,6 +43,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     // Data input here
     grass.position.y += noiseValue;
 
+    float noise = abs(snoise(float3(grass.position.xz, 0.0) * 0.2));
+    grass.position.w = lerp(0.3, 0.6, noise);
+
     if ((index % 3u) == 0)
     {
         grass.rotation = float4(0, 0, 0, 0); // No rotation
