@@ -16,6 +16,11 @@
 
 ![grass4](images/grass4.png)
 
+### Animated artificial wind
+
+![wind2](images/wind2.gif)
+![wind](images/wind.gif)
+
 ## Steps taken
  
 - 2 triangles that form a quad of grass, technique known as billboarding

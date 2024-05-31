@@ -86,6 +86,7 @@ Shader "Unlit/BillboardGrass"
 
                 float4 worldPosition = float4(grassPosition.xyz + localPosition, 1.0);
 
+                // Uncomment me to use culling
                 // if (cullVertex(worldPosition.xyz, -_CullingBias * max(1.0, _DisplacementStrength)))
                 //     o.pos = float4(0.0, 0.0, 0.0, 0.0); // Ensure we initialize o.pos
                 // else
@@ -99,18 +100,10 @@ Shader "Unlit/BillboardGrass"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                clip(-(0.5 - col.a));
-
-                float luminance = LinearRgbToLuminance(col);
-
-                float saturation = lerp(1.0, i.saturationLevel, i.uv.y * i.uv.y * i.uv.y);
-                col.r /= saturation;
-
-                float3 lightDir = _WorldSpaceLightPos0.xyz;
-                float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
-
-                return col * ndotl;
+                fixed4 texColor = tex2D(_MainTex, i.uv);
+                // Perform alpha clipping
+                if (texColor.a < 0.5) discard; // Adjust the threshold as needed
+                return texColor;
             }
             ENDCG
         }
