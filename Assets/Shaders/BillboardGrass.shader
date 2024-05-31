@@ -3,6 +3,7 @@ Shader "Unlit/BillboardGrass"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _WindStrength ("Wind Strength", Range(0.5, 50.0)) = 1
     }
     SubShader
     {
@@ -32,10 +33,24 @@ Shader "Unlit/BillboardGrass"
                 float4 rotation;
             };
 
-            StructuredBuffer<GrassData> grassBuffer;
-
+            
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            StructuredBuffer<GrassData> grassBuffer;
+            float _Rotation, _WindStrength, _DisplacementStrength;
+
+
+
+            // Function to rotate individual grass blades
+            float4 RotateAroundYInDegrees (float4 vertex, float degrees) {
+                float alpha = degrees * UNITY_PI / 180.0;
+                float sina, cosa;
+                sincos(alpha, sina, cosa);
+                float2x2 m = float2x2(cosa, -sina, sina, cosa);
+                return float4(mul(m, vertex.xz), vertex.yw).xzyw;
+            }
+
+            
 
             v2f vert (appdata_full v, uint id : SV_InstanceID)
             {
