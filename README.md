@@ -1,5 +1,9 @@
 # Grass
 
+![fog](images/fog.gif)
+
+## Steps taken
+
 ### 211,600 grass rendered(2,539,200 vertices)
 
 ![grass1](images/grass1.png)
@@ -20,8 +24,6 @@
 
 ![wind2](images/wind2.gif)
 ![wind](images/wind.gif)
-
-## Steps taken
  
 - 2 triangles that form a quad of grass, technique known as billboarding
 
@@ -79,13 +81,3 @@
   ```
   pos.xz += uv.y * trigValue * grassHeight * id_hash * 0.6
   ```
-
-```
-fixed4 frag (v2f i) : SV_Target
-{
-    fixed4 texColor = tex2D(_MainTex, i.uv);
-    // Perform alpha clipping
-    if (texColor.a < 0.5) discard; // Adjust the threshold as needed
-    return texColor;
-}
-```
