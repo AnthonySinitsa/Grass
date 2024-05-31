@@ -2,15 +2,18 @@ using UnityEngine;
 
 public class BillboardGrass : MonoBehaviour
 {
-    public Mesh grassMesh; // Reference to the grass mesh (a single quad)
-    public Material grassMaterial; // Reference to the grass material using the shader
-    public ComputeShader grassComputeShader; // Reference to the compute shader
-    public int gridWidth = 100; // Width of the grid in meters (total width, not just positive direction)
-    public int gridHeight = 100; // Height of the grid in meters (total height, not just positive direction)
+    public Mesh grassMesh;
+    public Material grassMaterial;
+    public ComputeShader grassComputeShader;
+    public int gridWidth = 100;
+    public int gridHeight = 100;
     public float displacementStrength = 200.0f;
-    public float spacing = 1f; // Distance between each grass instance
+    public float spacing = 1f;
+    public float frequency = 0.1f;
+    public bool grassUpdate = false;
 
 
+    private float density = 0.4f;
     private ComputeBuffer grassBuffer, argsBuffer; // Buffer to hold grass data (position and rotation)
 
     void Start()
@@ -36,7 +39,9 @@ public class BillboardGrass : MonoBehaviour
         grassComputeShader.SetInt("_GridWidth", gridWidth);
         grassComputeShader.SetInt("_GridHeight", gridHeight);
         grassComputeShader.SetFloat("_DisplacementStrength", displacementStrength);
-        grassComputeShader.SetBuffer(0, "_GrassBuffer", grassBuffer);
+        grassComputeShader.SetFloat("_Density", density);
+        grassComputeShader.SetFloat("_Frequency", frequency);
+        grassComputeShader.SetBuffer(0, "grassBuffer", grassBuffer);
 
         // Dispatch the compute shader
         int threadGroups = Mathf.CeilToInt(grassCount / 10.0f);
@@ -55,6 +60,12 @@ public class BillboardGrass : MonoBehaviour
 
     void Update()
     {
+        if (grassUpdate)
+        {
+            InitializeGrass();
+            grassUpdate = false;
+        }
+        
         // Draw the grass instances using GPU instancing
         Graphics.DrawMeshInstancedIndirect(
             grassMesh, 0, grassMaterial, new Bounds(
