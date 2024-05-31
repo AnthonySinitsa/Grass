@@ -26,8 +26,16 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     int x = int((index / 3u) % _GridWidth);
     int z = int((index / 3u) / _GridHeight);
 
+    // Change 0.5 to 0.05 in terms of taste
+    // Slight shuffling
+    float xOffset = snoise(float3(x, z, 0.0) * 3.0) * 0.5;
+    float zOffset = snoise(float3(z, x, 0.0) * 4.0) * 0.5;
+
     // Data input here
-    grass.position = float4(x * _Spacing * _Density, 0, z * _Spacing * _Density, 0);
+    grass.position = 
+        float4(
+            (x + xOffset) * _Spacing * _Density, 0, (z + zOffset) * _Spacing * _Density, 0
+        );
 
     float2 noiseInput = grass.position.xz * _Frequency;
     float noiseValue = abs(snoise(float3(noiseInput, 0.0))) * _DisplacementStrength;
