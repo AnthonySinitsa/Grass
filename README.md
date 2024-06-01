@@ -83,3 +83,7 @@ This is a repo I am using to learn different ways to render grass. This first va
   ```
   pos.xz += uv.y * trigValue * grassHeight * id_hash * 0.6
   ```
+
+## Model Grass
+
+- 
