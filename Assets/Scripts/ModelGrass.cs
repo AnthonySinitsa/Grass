@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class ModelGrass : MonoBehaviour
@@ -6,11 +9,12 @@ public class ModelGrass : MonoBehaviour
     public Material grassMaterial;
     public Mesh grassMesh;
     public Texture2D grassTypeTexture;
-    
+
     public int chunkSize = 10;
     public int grassDensity = 1000;
 
     private ComputeBuffer grassBuffer;
+    private ComputeBuffer argsBuffer;
     private int kernelHandle;
 
     struct GrassBlade
@@ -33,7 +37,7 @@ public class ModelGrass : MonoBehaviour
     {
         kernelHandle = grassComputeShader.FindKernel("CSMain");
 
-        grassBuffer = new ComputeBuffer(grassDensity, sizeof(float) * 17 + sizeof(int) * 2);
+        grassBuffer = new ComputeBuffer(grassDensity, Marshal.SizeOf(typeof(GrassBlade)));
         grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
 
         GenerateGrass();
@@ -44,17 +48,22 @@ public class ModelGrass : MonoBehaviour
         grassComputeShader.SetInt("chunkSize", chunkSize);
         grassComputeShader.SetInt("grassDensity", grassDensity);
         grassComputeShader.Dispatch(kernelHandle, grassDensity / 10, 1, 1);
+
+        uint[] args = new uint[5] { (uint)grassMesh.GetIndexCount(0), (uint)grassDensity, 0, 0, 0 };
+        argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
+        argsBuffer.SetData(args);
     }
 
     void OnRenderObject()
     {
         grassMaterial.SetPass(0);
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
-        Graphics.DrawProceduralNow(MeshTopology.Points, grassBuffer.count);
+        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(float.MaxValue, float.MaxValue, float.MaxValue)), argsBuffer);
     }
 
     void OnDestroy()
     {
         grassBuffer.Release();
+        argsBuffer.Release();
     }
 }
