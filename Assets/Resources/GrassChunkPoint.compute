@@ -1,0 +1,57 @@
+#pragma kernel CSMain
+
+#include "Random.cginc"
+
+struct GrassBlade
+{
+    float3 position;
+    float2 facing;
+    float windStrength;
+    int perBladeHash;
+    int grassType;
+    float2 clumpFacing;
+    float4 clumpColor;
+    float height;
+    float width;
+    float tilt;
+    float bend;
+    float sideCurve;
+};
+
+RWStructuredBuffer<GrassBlade> grassBuffer;
+
+int chunkSize;
+int grassDensity;
+
+[numthreads(10, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= grassDensity) return;
+
+    GrassBlade blade;
+    
+    // Place blade within chunk with jitter
+    float3 position = float3(id.x % chunkSize, 0, id.x / chunkSize) + float3(randValue(), 0, randValue());
+    blade.position = position;
+
+    // Simple example: all blades face the same direction
+    blade.facing = float2(0, 1);
+    
+    // Calculate wind strength at position
+    blade.windStrength = randValue();
+    
+    // Assign a hash for this blade
+    blade.perBladeHash = id.x;
+
+    // Determine grass type from texture (simplified)
+    blade.grassType = 0;
+    blade.clumpFacing = float2(1, 0);
+    blade.clumpColor = float4(0, 1, 0, 1);
+    blade.height = 1.0;
+    blade.width = 0.1;
+    blade.tilt = 0.0;
+    blade.bend = 0.0;
+    blade.sideCurve = 0.0;
+
+    grassBuffer[id.x] = blade;
+}

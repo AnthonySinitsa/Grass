@@ -132,6 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 941164293}
+  - component: {fileID: 941164294}
   m_Layer: 0
   m_Name: ' GrassBlade'
   m_TagString: Untagged
@@ -154,6 +155,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &941164294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941164292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f057a97923b0d11479b9cc85b3135000, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grassComputeShader: {fileID: 7200000, guid: 7262c749679c2784689e4e61fd225e2f, type: 3}
+  grassMaterial: {fileID: -7791486788655378091, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
+  grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
+  grassTypeTexture: {fileID: 2800000, guid: 84988aa971b92f84296525d8baf05c83, type: 3}
+  chunkSize: 10
+  grassDensity: 1000
 --- !u!1 &948754967
 GameObject:
   m_ObjectHideFlags: 0
