@@ -86,4 +86,56 @@ This is a repo I am using to learn different ways to render grass. This first va
 
 ## Model Grass
 
-- 
+- Chunking
+  - Build an individual blade of grass using vertex IDs
+  - Use vertex shader to create positions from that
+  - Then instance it a number of times that generates a unique position of each blade of grass
+
+- Place blades of grass using jittered grid of points
+  - Start with evenly spaced points and apply small random offset to each one
+  - Use voronoi noise to give ways of clumping the grass
+
+- Add angle variation by rotating each blade, do that in shader via per blade hash value
+
+- Cubic Bezier curve to model the shape of the grass(AKA droopiness)
+  - or
+  - Could just use a simple rotation of the vertex on the x-axis based on the height and random per blade curve value
+
+- Slightly round the normal instead of having flat grass normals
+  - In the shader use two rotated normals and blend between them
+    ```
+    rotatedNormal1 = rotateY(PI * 0.3) * grassVertexNormal
+    rotatedNormal2 = rotateY(PI * -0.3) * grassVertexNormal
+    
+    normalMixFactor = widthPercent;
+
+    normal = mix(rotatedNormal1, rotatedNormal2, normalMixFactor);
+    normal = normalize(normal);
+    ```
+
+- Shift the verts in the viewspace before the final transform is written out
+  - First calculate dot product of view direction and grass normal
+  - `viewDotNormal = saturate(dot(grassFaceNormal.xz, viewDir.xz))`
+  - Calculate view space thicken factor. easOut function is used to shape how quickly we start adjusting the width
+  - `viewSpaceThickenFactor = easeOut(1.0 - viewDotNormal, 4.0)`
+  - Then ramp it down when we go completely orthogonal
+  - `viewSpaceThickenFactor *= smoothstep(0.0, 0.2, viewDotNormal)`
+  - Now apply viewspace adjustment
+  - `mvPosition = modelViewMatrix * position`
+  - `mvPosition.x += viewSpaceThickenFactor * xDirection * grassWidth`
+
+- Add a gradient from base to tip
+
+- For Specular, blend the normal with the Vector based distance
+
+- Ambient Occlusion
+  - Density is in the range [0, 1]
+  - 0 being no grass and 1 being full grass
+  - `aoForDensity = mix(1.0, 0.25, density)`
+  - `ao = mix(aoForDensity, 1.0, easeIn(heightPercent, 2.0))`
+  - `ambientLighting *= ao`
+  - So more dense areas get more shading
+
+- Wind
+  - Take sample of noise based on grass position and scroll it with time
+  - Then add on top of the curve of grass blade
