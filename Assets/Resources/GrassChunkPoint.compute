@@ -1,5 +1,4 @@
 #pragma kernel CSMain
-#include "Random.cginc"
 
 struct GrassBlade
 {
@@ -18,15 +17,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     GrassBlade blade;
 
-    // Initialize the random number generator with a unique seed for each thread
-    uint seedX = (uint)id.x;
-    uint seedZ = (uint)(id.x + 1);
-
-    float randomOffsetX = randValue(seedX);
-    float randomOffsetZ = randValue(seedZ);
-
-    // Place blade within chunk with jitter
-    float3 position = float3((id.x % chunkSize) + randomOffsetX, 0.1, (id.x / chunkSize) + randomOffsetZ);
+    // Place blade within chunk with uniform spacing
+    float3 position = float3((id.x % chunkSize) + 0.5f, 0.1, (id.x / chunkSize) + 0.5f);
     blade.position = position;
 
     grassBuffer[id.x] = blade;
