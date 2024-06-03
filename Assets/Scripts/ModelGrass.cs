@@ -39,8 +39,13 @@ public class ModelGrass : MonoBehaviour
     void Update()
     {
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
-        Bounds bounds = new Bounds(Vector3.zero, new Vector3(fieldSize * 10, 10, fieldSize * 10));
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, bounds, argsBuffer);
+        Graphics.DrawMeshInstancedIndirect(
+            grassMesh, 0, grassMaterial, new Bounds(
+                Vector3.zero, new Vector3(
+                    1000.0f, 200.0f, 500.0f
+                )
+            ), argsBuffer
+        );
     }
 
     void OnDestroy()
