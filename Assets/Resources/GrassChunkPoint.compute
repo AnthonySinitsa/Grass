@@ -7,19 +7,24 @@ struct GrassBlade
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
-int chunkSize;
-int grassDensity;
+int fieldSize;
+int chunkDensity;
+int numChunks;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= (uint)grassDensity) return;
+    if (id.x >= (uint)(chunkDensity * numChunks)) return;
 
     GrassBlade blade;
 
     // Place blade within chunk with uniform spacing
-    float3 position = float3((id.x % chunkSize) + 0.5f, 0.1, (id.x / chunkSize) + 0.5f);
+    float3 position = float3((id.x % chunkDensity) + 0.5f, 0.5, (id.x / chunkDensity) + 0.5f);
     blade.position = position;
+
+    // Scale position to fit within the field
+    blade.position.x /= fieldSize;
+    blade.position.z /= fieldSize;
 
     grassBuffer[id.x] = blade;
 }

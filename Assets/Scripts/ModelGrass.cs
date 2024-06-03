@@ -6,26 +6,22 @@ public class ModelGrass : MonoBehaviour
     public Material grassMaterial;
     public Mesh grassMesh;
 
-    public int chunkSize = 10;
-    public int grassDensity = 1000;
+    public int fieldSize = 100; // size of the field in units
+    public int chunkDensity = 1000; // number of grass chunks in the field
+    public int numChunks = 5; // number of chunks to spawn
 
     private ComputeBuffer grassBuffer;
     private ComputeBuffer argsBuffer;
     private int kernelHandle;
 
-    struct GrassBlade
-    {
-        public Vector3 position;
-    }
-
     void Start()
     {
         kernelHandle = grassComputeShader.FindKernel("CSMain");
 
-        grassBuffer = new ComputeBuffer(grassDensity, sizeof(float) * 3);
+        grassBuffer = new ComputeBuffer(chunkDensity * numChunks, sizeof(float) * 3);
         grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
 
-        uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)grassDensity, 0, 0, 0 };
+        uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(chunkDensity * numChunks), 0, 0, 0 };
         argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         argsBuffer.SetData(args);
 
@@ -34,15 +30,17 @@ public class ModelGrass : MonoBehaviour
 
     void GenerateGrass()
     {
-        grassComputeShader.SetInt("chunkSize", chunkSize);
-        grassComputeShader.SetInt("grassDensity", grassDensity);
-        grassComputeShader.Dispatch(kernelHandle, Mathf.CeilToInt(grassDensity / 10.0f), 1, 1);
+        grassComputeShader.SetInt("fieldSize", fieldSize);
+        grassComputeShader.SetInt("chunkDensity", chunkDensity);
+        grassComputeShader.SetInt("numChunks", numChunks);
+        grassComputeShader.Dispatch(kernelHandle, Mathf.CeilToInt(chunkDensity * numChunks / 10.0f), 1, 1);
     }
 
     void Update()
     {
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, new Bounds(Vector3.zero, new Vector3(chunkSize, 10, chunkSize)), argsBuffer);
+        Bounds bounds = new Bounds(Vector3.zero, new Vector3(fieldSize * 10, 10, fieldSize * 10));
+        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, bounds, argsBuffer);
     }
 
     void OnDestroy()
