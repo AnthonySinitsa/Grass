@@ -9,6 +9,7 @@ public class ModelGrass : MonoBehaviour
     public int fieldSize = 100; // size of the field in units
     public int chunkDensity = 1000; // number of grass chunks in the field
     public int numChunks = 5; // number of chunks to spawn
+    public bool grassUpdate = false;
 
     private ComputeBuffer grassBuffer, argsBuffer;
     private int kernelHandle;
@@ -37,6 +38,12 @@ public class ModelGrass : MonoBehaviour
 
     void Update()
     {
+        if (grassUpdate)
+        {
+            Start();
+            grassUpdate = false;
+        }
+
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
         Graphics.DrawMeshInstancedIndirect(
             grassMesh, 0, grassMaterial, new Bounds(
