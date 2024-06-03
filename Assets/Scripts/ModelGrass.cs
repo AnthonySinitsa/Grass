@@ -10,8 +10,7 @@ public class ModelGrass : MonoBehaviour
     public int chunkDensity = 1000; // number of grass chunks in the field
     public int numChunks = 5; // number of chunks to spawn
 
-    private ComputeBuffer grassBuffer;
-    private ComputeBuffer argsBuffer;
+    private ComputeBuffer grassBuffer, argsBuffer;
     private int kernelHandle;
 
     void Start()
