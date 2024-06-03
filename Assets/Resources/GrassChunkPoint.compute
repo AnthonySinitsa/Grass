@@ -14,16 +14,19 @@ int grassDensity;
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= grassDensity) return;
+    if (id.x >= (uint)grassDensity) return;
 
     GrassBlade blade;
 
     // Initialize the random number generator with a unique seed for each thread
-    float randomOffsetX = randValue(id.x);
-    float randomOffsetZ = randValue(id.x + 1);
+    uint seedX = (uint)id.x;
+    uint seedZ = (uint)(id.x + 1);
+
+    float randomOffsetX = randValue(seedX);
+    float randomOffsetZ = randValue(seedZ);
 
     // Place blade within chunk with jitter
-    float3 position = float3((id.x % chunkSize) + randomOffsetX, 0, (id.x / chunkSize) + randomOffsetZ);
+    float3 position = float3((id.x % chunkSize) + randomOffsetX, 0.1, (id.x / chunkSize) + randomOffsetZ);
     blade.position = position;
 
     grassBuffer[id.x] = blade;
