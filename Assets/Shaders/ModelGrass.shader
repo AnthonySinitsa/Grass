@@ -16,9 +16,18 @@ Shader "Custom/ModelGrass"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
+            struct GrassBlade
+            {
+                float3 position;
+            };
+
+            StructuredBuffer<GrassBlade> grassBuffer;
+
             struct appdata
             {
+                uint instanceID : SV_InstanceID;
                 float4 vertex : POSITION;
+                float3 normal : NORMAL;
             };
 
             struct v2f
@@ -27,20 +36,22 @@ Shader "Custom/ModelGrass"
                 float2 uv : TEXCOORD0;
             };
 
-            StructuredBuffer<GrassBlade> grassBuffer;
+            sampler2D _MainTex;
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
-                GrassBlade blade = grassBuffer[uint(v.vertex.x)];
-                o.pos = UnityObjectToClipPos(blade.position);
+                GrassBlade blade = grassBuffer[v.instanceID];
+
+                // Apply transformations based on instance data
+                float4 worldPos = float4(blade.position + v.vertex.xyz, 1.0);
+                o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.vertex.xy;
+
                 return o;
             }
 
-            sampler2D _MainTex;
-
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
                 return tex2D(_MainTex, i.uv);
             }
