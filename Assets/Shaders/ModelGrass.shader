@@ -2,10 +2,13 @@ Shader "Custom/ModelGrass"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _Albedo1 ("Albedo 1", Color) = (1, 1, 1, 1)
     }
     SubShader
     {
+        Cull Off
+        Zwrite On
+
         Tags { "RenderType"="Opaque" }
         LOD 200
 
@@ -36,7 +39,7 @@ Shader "Custom/ModelGrass"
                 float2 uv : TEXCOORD0;
             };
 
-            sampler2D _MainTex;
+            fixed4 _Albedo1;
 
             v2f vert(appdata v)
             {
@@ -53,7 +56,7 @@ Shader "Custom/ModelGrass"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                return tex2D(_MainTex, i.uv);
+                return _Albedo1;
             }
             ENDCG
         }
