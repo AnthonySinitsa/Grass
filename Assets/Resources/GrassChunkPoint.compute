@@ -11,9 +11,8 @@ struct GrassBlade
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
-int numChunks, chunkDensity, seed, voronoiNumCells;
+int numChunks, chunkDensity, seed;
 float chunkSize;
-float globalTime;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
@@ -47,13 +46,10 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // Calculate random rotation
     float rotation = randValue(seed * 3) * 360.0;
 
-    // Calculate Voronoi noise value for height using 2D noise
-    float2 uv = float2(position.x / (numChunks * chunkSize), position.z / (numChunks * chunkSize));
-    float voronoiValue = vfbm(uv, globalTime);
+
 
     blade.position = position;
     blade.rotation = rotation;
-    blade.height = voronoiValue;
 
     grassBuffer[id.x] = blade;
 }
