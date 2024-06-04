@@ -18,6 +18,9 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     GrassBlade blade;
 
+    // Define the size of each chunk in world units
+    float chunkSize = 10;
+
     // Calculate chunk index and position within chunk
     uint chunkIndex = id.x / (chunkDensity * chunkDensity);
     uint bladeIndex = id.x % (chunkDensity * chunkDensity);
@@ -28,11 +31,11 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     int bladeX = bladeIndex % chunkDensity;
     int bladeZ = bladeIndex / chunkDensity;
 
-    // Calculate world position
+    // Calculate world position and scale by chunk size
     float3 position;
-    position.x = chunkX + (float)bladeX / chunkDensity;
-    position.y = 0.5;
-    position.z = chunkZ + (float)bladeZ / chunkDensity;
+    position.x = chunkX * chunkSize + (bladeX * chunkSize) / chunkDensity;
+    position.y = 0.0;
+    position.z = chunkZ * chunkSize + (bladeZ * chunkSize) / chunkDensity;
 
     blade.position = position;
 
