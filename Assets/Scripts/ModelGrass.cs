@@ -8,6 +8,7 @@ public class ModelGrass : MonoBehaviour
 
     public int numChunks = 5;
     public int chunkDensity = 100;
+    public float chunkSize = 10.0f;
     public bool grassUpdate = false;
 
     private ComputeBuffer grassBuffer, argsBuffer;
@@ -32,6 +33,7 @@ public class ModelGrass : MonoBehaviour
     {
         grassComputeShader.SetInt("numChunks", numChunks);
         grassComputeShader.SetInt("chunkDensity", chunkDensity);
+        grassComputeShader.SetFloat("chunkSize", chunkSize);
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
         grassComputeShader.Dispatch(kernelHandle, Mathf.CeilToInt(totalGrassBlades / 10.0f), 1, 1);
     }
@@ -40,15 +42,18 @@ public class ModelGrass : MonoBehaviour
     {
         if (grassUpdate)
         {
-            GenerateGrass();
+            Start();
             grassUpdate = false;
         }
 
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
+
+        float boundsSize = numChunks * chunkSize;
+
         Graphics.DrawMeshInstancedIndirect(
             grassMesh, 0, grassMaterial, new Bounds(
                 Vector3.zero, new Vector3(
-                    numChunks, 10, numChunks
+                    boundsSize, 10.0f, boundsSize
                 )
             ), argsBuffer
         );
