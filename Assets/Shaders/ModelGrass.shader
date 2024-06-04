@@ -22,6 +22,7 @@ Shader "Custom/ModelGrass"
             {
                 float3 position;
                 float rotation;
+                float height;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -53,6 +54,9 @@ Shader "Custom/ModelGrass"
                     v.vertex.y,
                     v.vertex.x * sinTheta + v.vertex.z * cosTheta
                 );
+
+                // Scale the vertex position by the blade's height
+                rotatedPosition.y *= blade.height;
 
                 // Apply transformations based on instance data
                 float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
