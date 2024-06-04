@@ -1,5 +1,6 @@
 #pragma kernel CSMain
 #include "Random.cginc"
+#include "VoronoiNoise.compute"
 
 struct GrassBlade
 {
@@ -10,8 +11,9 @@ struct GrassBlade
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
-int numChunks, chunkDensity, seed;
+int numChunks, chunkDensity, seed, voronoiNumCells;
 float chunkSize;
+float globalTime;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
@@ -45,33 +47,13 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // Calculate random rotation
     float rotation = randValue(seed * 3) * 360.0;
 
-    // Voronoi noise calculation for clumping
-    float3 clumpCenter = float3(floor(position.x / chunkSize) * chunkSize, 0, floor(position.z / chunkSize) * chunkSize);
-    float3 nearestClumpCenter = clumpCenter;
-    float minDist = length(position - clumpCenter);
-
-    // Check neighboring clumps
-    for (int dx = -1; dx <= 1; dx++)
-    {
-        for (int dz = -1; dz <= 1; dz++)
-        {
-            float3 neighborClumpCenter = clumpCenter + float3(dx * chunkSize, 0, dz * chunkSize);
-            float dist = length(position - neighborClumpCenter);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                nearestClumpCenter = neighborClumpCenter;
-            }
-        }
-    }
-
-    // Modify properties based on distance to nearest clump center
-    float clumpFactor = 1.0 - saturate(minDist / chunkSize);
-    blade.height = 0.5 + clumpFactor * 1.5; // Example: height varies between 0.5 and 2.0
-    blade.rotation += clumpFactor * 45.0; // Example: rotation variation
+    // Calculate Voronoi noise value for height using 2D noise
+    float2 uv = float2(position.x / (numChunks * chunkSize), position.z / (numChunks * chunkSize));
+    float voronoiValue = vfbm(uv, globalTime);
 
     blade.position = position;
     blade.rotation = rotation;
+    blade.height = voronoiValue;
 
     grassBuffer[id.x] = blade;
 }
