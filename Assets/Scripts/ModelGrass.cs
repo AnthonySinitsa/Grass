@@ -61,7 +61,13 @@ public class ModelGrass : MonoBehaviour
 
     void OnDestroy()
     {
-        grassBuffer.Release();
-        argsBuffer.Release();
+        if (grassBuffer != null)
+        {
+            grassBuffer.Release();
+        }
+        if (argsBuffer != null)
+        {
+            argsBuffer.Release();
+        }
     }
 }
