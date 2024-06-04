@@ -10,7 +10,6 @@ Shader "Custom/ModelGrass"
         Zwrite On
 
         Tags { "RenderType"="Opaque" }
-        LOD 200
 
         Pass
         {
@@ -22,6 +21,7 @@ Shader "Custom/ModelGrass"
             struct GrassBlade
             {
                 float3 position;
+                float rotation;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -46,8 +46,16 @@ Shader "Custom/ModelGrass"
                 v2f o;
                 GrassBlade blade = grassBuffer[v.instanceID];
 
+                float cosTheta = cos(blade.rotation);
+                float sinTheta = sin(blade.rotation);
+                float3 rotatedPosition = float3(
+                    v.vertex.x * cosTheta - v.vertex.z * sinTheta,
+                    v.vertex.y,
+                    v.vertex.x * sinTheta + v.vertex.z * cosTheta
+                );
+
                 // Apply transformations based on instance data
-                float4 worldPos = float4(blade.position + v.vertex.xyz, 1.0);
+                float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.vertex.xy;
 

@@ -19,7 +19,7 @@ public class ModelGrass : MonoBehaviour
         kernelHandle = grassComputeShader.FindKernel("CSMain");
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
-        grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 3);
+        grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 4);
         grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
 
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(totalGrassBlades), 0, 0, 0 };
