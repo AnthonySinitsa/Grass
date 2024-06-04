@@ -7,19 +7,34 @@ struct GrassBlade
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
-int fieldSize;
+int numChunks;
+int chunkDensity;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= (uint)(fieldSize * fieldSize)) return;
+    uint totalGrassBlades = (uint)(numChunks * numChunks * chunkDensity * chunkDensity);
+    if (id.x >= totalGrassBlades) return;
 
     GrassBlade blade;
 
-    int x = id.x % fieldSize;
-    int z = id.x / fieldSize;
+    // Calculate chunk index and position within chunk
+    uint chunkIndex = id.x / (chunkDensity * chunkDensity);
+    uint bladeIndex = id.x % (chunkDensity * chunkDensity);
 
-    blade.position = float3((float)x + 0.5, 0.5, (float)z + 0.5);
+    int chunkX = chunkIndex % numChunks;
+    int chunkZ = chunkIndex / numChunks;
+
+    int bladeX = bladeIndex % chunkDensity;
+    int bladeZ = bladeIndex / chunkDensity;
+
+    // Calculate world position
+    float3 position;
+    position.x = chunkX + (float)bladeX / chunkDensity;
+    position.y = 0.5;
+    position.z = chunkZ + (float)bladeZ / chunkDensity;
+
+    blade.position = position;
 
     grassBuffer[id.x] = blade;
 }
