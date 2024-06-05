@@ -3,6 +3,9 @@ Shader "Custom/ModelGrass"
     Properties
     {
         _Albedo1 ("Albedo 1", Color) = (1, 1, 1, 1)
+        _Albedo2 ("Albedo 2", Color) = (1, 1, 1, 1)
+        _AOColor ("Ambient Occlusion", Color) = (1, 1, 1)
+        _TipColor ("Tip Color", Color) = (1, 1, 1)
     }
     SubShader
     {
@@ -16,6 +19,9 @@ Shader "Custom/ModelGrass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+
+            #include "UnityPBSLighting.cginc"
+            #include "AutoLight.cginc"
             #include "UnityCG.cginc"
 
             struct GrassBlade
@@ -40,7 +46,7 @@ Shader "Custom/ModelGrass"
                 float2 uv : TEXCOORD0;
             };
 
-            fixed4 _Albedo1;
+            fixed4 _Albedo1, _Albedo2, _AOColor, _TipColor;
 
             v2f vert(appdata v)
             {
@@ -68,15 +74,16 @@ Shader "Custom/ModelGrass"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                float3 normal = normalize(float3(0, 1, 0));
+                float4 col = lerp(_Albedo1, _Albedo2, i.uv.y);
+                float3 lightDir = _WorldSpaceLightPos0.xyz;
+                float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
 
-                float3 lightDir = normalize(float3(0.5, 1, 0.5));
+                float4 ao = lerp(_AOColor, 1.0, i.uv.y);
+                float4 tip = lerp(0.0, _TipColor, i.uv.y * i.uv.y);
 
-                float diffuseFactor = max(0.0, dot(normal, lightDir));
+                float4 grassColor = (col + tip) * ndotl * ao;
 
-                fixed4 diffuseColor = _Albedo1 * diffuseFactor;
-
-                return diffuseColor;
+                return grassColor;
             }
             ENDCG
         }
