@@ -7,10 +7,11 @@ public class ModelGrass : MonoBehaviour
     public Mesh grassMesh;
     public int numChunks = 5;
     public int chunkDensity = 100;
+    public float voronoiScale = 1.0f;
     public float chunkSize = 10.0f;
-    public int seed = 12345;
     public bool grassUpdate = false;
 
+    private int seed = 12345;
     private ComputeBuffer grassBuffer, argsBuffer;
     private int kernelHandle;
 
@@ -23,7 +24,7 @@ public class ModelGrass : MonoBehaviour
 
     void InitializeBuffers()
     {
-        ReleaseBuffers();
+        OnDestroy();
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
         grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 5);
@@ -38,6 +39,7 @@ public class ModelGrass : MonoBehaviour
     {
         grassComputeShader.SetInt("numChunks", numChunks);
         grassComputeShader.SetInt("chunkDensity", chunkDensity);
+        grassComputeShader.SetFloat("voronoiScale", voronoiScale);
         grassComputeShader.SetFloat("chunkSize", chunkSize);
         grassComputeShader.SetInt("seed", seed);
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
@@ -67,11 +69,6 @@ public class ModelGrass : MonoBehaviour
     }
 
     void OnDestroy()
-    {
-        ReleaseBuffers();
-    }
-
-    void ReleaseBuffers()
     {
         if (grassBuffer != null)
         {
