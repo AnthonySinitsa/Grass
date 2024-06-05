@@ -7,17 +7,24 @@ public class ModelGrass : MonoBehaviour
     public Mesh grassMesh;
     public int numChunks = 5;
     public int chunkDensity = 100;
+    public float voronoiScale = 1.0f;
     public float chunkSize = 10.0f;
-    public int seed = 12345;
     public bool grassUpdate = false;
 
-
+    private int seed = 12345;
     private ComputeBuffer grassBuffer, argsBuffer;
     private int kernelHandle;
 
     void Start()
     {
         kernelHandle = grassComputeShader.FindKernel("CSMain");
+        InitializeBuffers();
+        GenerateGrass();
+    }
+
+    void InitializeBuffers()
+    {
+        OnDestroy();
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
         grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 5);
@@ -26,14 +33,13 @@ public class ModelGrass : MonoBehaviour
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(totalGrassBlades), 0, 0, 0 };
         argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         argsBuffer.SetData(args);
-
-        GenerateGrass();
     }
 
     void GenerateGrass()
     {
         grassComputeShader.SetInt("numChunks", numChunks);
         grassComputeShader.SetInt("chunkDensity", chunkDensity);
+        grassComputeShader.SetFloat("voronoiScale", voronoiScale);
         grassComputeShader.SetFloat("chunkSize", chunkSize);
         grassComputeShader.SetInt("seed", seed);
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
@@ -44,7 +50,8 @@ public class ModelGrass : MonoBehaviour
     {
         if (grassUpdate)
         {
-            Start();
+            InitializeBuffers();
+            GenerateGrass();
             grassUpdate = false;
         }
 
@@ -66,10 +73,12 @@ public class ModelGrass : MonoBehaviour
         if (grassBuffer != null)
         {
             grassBuffer.Release();
+            grassBuffer = null;
         }
         if (argsBuffer != null)
         {
             argsBuffer.Release();
+            argsBuffer = null;
         }
     }
 }

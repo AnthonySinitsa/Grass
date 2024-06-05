@@ -44,7 +44,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _HeightMap:
-        m_Texture: {fileID: 2800000, guid: 9b69c468b40da324492a431096f00a14, type: 3}
+        m_Texture: {fileID: 2800000, guid: fd8747c93da65ba4c868dbc66c497683, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -68,7 +68,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainTex:
-        m_Texture: {fileID: 2800000, guid: fc3b301b455af8e4fa486ccb292963fa, type: 3}
+        m_Texture: {fileID: 2800000, guid: 84988aa971b92f84296525d8baf05c83, type: 3}
         m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -86,10 +86,11 @@ Material:
     - _GreenIntensity: 1
     - _GreenLightness: 1
     - _GreenSaturation: 1
+    - _HeightScale: 0
     - _Lightness: -0.71
     - _Metallic: 0
     - _Mode: 0
-    - _NormalStrength: 10
+    - _NormalStrength: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Saturation: 0.3
