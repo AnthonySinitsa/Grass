@@ -3,6 +3,9 @@ Shader "Custom/ModelGrass"
     Properties
     {
         _Albedo1 ("Albedo 1", Color) = (1, 1, 1, 1)
+        _Albedo2 ("Albedo 2", Color) = (1, 1, 1, 1)
+        _AOColor ("Ambient Occlusion", Color) = (1, 1, 1)
+        _TipColor ("Tip Color", Color) = (1, 1, 1)
     }
     SubShader
     {
@@ -10,18 +13,22 @@ Shader "Custom/ModelGrass"
         Zwrite On
 
         Tags { "RenderType"="Opaque" }
-        LOD 200
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+
+            #include "UnityPBSLighting.cginc"
+            #include "AutoLight.cginc"
             #include "UnityCG.cginc"
 
             struct GrassBlade
             {
                 float3 position;
+                float rotation;
+                float height;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -39,15 +46,26 @@ Shader "Custom/ModelGrass"
                 float2 uv : TEXCOORD0;
             };
 
-            fixed4 _Albedo1;
+            fixed4 _Albedo1, _Albedo2, _AOColor, _TipColor;
 
             v2f vert(appdata v)
             {
                 v2f o;
                 GrassBlade blade = grassBuffer[v.instanceID];
 
+                float cosTheta = cos(blade.rotation);
+                float sinTheta = sin(blade.rotation);
+                float3 rotatedPosition = float3(
+                    v.vertex.x * cosTheta - v.vertex.z * sinTheta,
+                    v.vertex.y,
+                    v.vertex.x * sinTheta + v.vertex.z * cosTheta
+                );
+
+                // Scale the vertex position by the blade's height
+                rotatedPosition.y += blade.height;
+
                 // Apply transformations based on instance data
-                float4 worldPos = float4(blade.position + v.vertex.xyz, 1.0);
+                float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.vertex.xy;
 
@@ -56,7 +74,16 @@ Shader "Custom/ModelGrass"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                return _Albedo1;
+                float4 col = lerp(_Albedo1, _Albedo2, i.uv.y);
+                float3 lightDir = _WorldSpaceLightPos0.xyz;
+                float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
+
+                float4 ao = lerp(_AOColor, 1.0, i.uv.y);
+                float4 tip = lerp(0.0, _TipColor, i.uv.y * i.uv.y);
+
+                float4 grassColor = (col + tip) * ndotl * ao;
+
+                return grassColor;
             }
             ENDCG
         }

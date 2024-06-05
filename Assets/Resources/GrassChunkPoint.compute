@@ -1,30 +1,57 @@
 #pragma kernel CSMain
+#include "Random.cginc"
+#include "VoronoiNoise.compute"
 
 struct GrassBlade
 {
     float3 position;
+    float rotation;
+    float height;
 };
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
-int fieldSize;
-int chunkDensity;
-int numChunks;
+int numChunks, chunkDensity, seed;
+float chunkSize, globalTime;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= (uint)(chunkDensity * numChunks)) return;
+    uint totalGrassBlades = (uint)(numChunks * numChunks * chunkDensity * chunkDensity);
+    if (id.x >= totalGrassBlades) return;
 
     GrassBlade blade;
 
-    // Place blade within chunk with uniform spacing
-    float3 position = float3((id.x % chunkDensity) + 0.5f, 0.5, (id.x / chunkDensity) + 0.5f);
-    blade.position = position;
+    // Calculate chunk index and position within chunk
+    uint chunkIndex = id.x / (chunkDensity * chunkDensity);
+    uint bladeIndex = id.x % (chunkDensity * chunkDensity);
 
-    // Scale position to fit within the field
-    blade.position.x /= fieldSize;
-    blade.position.z /= fieldSize;
+    int chunkX = chunkIndex % numChunks;
+    int chunkZ = chunkIndex / numChunks;
+
+    int bladeX = bladeIndex % chunkDensity;
+    int bladeZ = bladeIndex / chunkDensity;
+
+    // Initialize random number generator with a unique seed
+    uint seed = id.x + 1;
+    float randomX = randValue(seed) - 0.2;
+    float randomZ = randValue(seed * 2) - 0.2;
+
+    // Calculate world position and scale by chunk size, adding random offsets
+    float3 position;
+    position.x = chunkX * chunkSize + (bladeX * chunkSize) / chunkDensity + randomX * (chunkSize / chunkDensity);
+    position.y = 0.5;
+    position.z = chunkZ * chunkSize + (bladeZ * chunkSize) / chunkDensity + randomZ * (chunkSize / chunkDensity);
+
+    // Calculate random rotation
+    float rotation = randValue(seed * 3) * 360.0;
+
+    // Calculate Voronoi noise value for height using 2D noise
+    float voronoiValue = voronoi(float2(position.x, position.z), globalTime);
+
+    blade.position = position;
+    blade.rotation = rotation;
+    blade.height = voronoiValue;
 
     grassBuffer[id.x] = blade;
 }

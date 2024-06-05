@@ -172,9 +172,11 @@ MonoBehaviour:
   grassComputeShader: {fileID: 7200000, guid: 7262c749679c2784689e4e61fd225e2f, type: 3}
   grassMaterial: {fileID: 2100000, guid: 21d0a01e5d398ac47a7f469eb3829dac, type: 2}
   grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
-  fieldSize: 2
-  chunkDensity: 20
-  numChunks: 20
+  numChunks: 5
+  chunkDensity: 100
+  chunkSize: 10
+  seed: 12345
+  grassUpdate: 0
 --- !u!64 &941164295
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -596,7 +598,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.41713768
+      value: -8.06
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
       propertyPath: m_LocalPosition.y

@@ -5,23 +5,25 @@ public class ModelGrass : MonoBehaviour
     public ComputeShader grassComputeShader;
     public Material grassMaterial;
     public Mesh grassMesh;
+    public int numChunks = 5;
+    public int chunkDensity = 100;
+    public float chunkSize = 10.0f;
+    public int seed = 12345;
+    public bool grassUpdate = false;
 
-    public int fieldSize = 100; // size of the field in units
-    public int chunkDensity = 1000; // number of grass chunks in the field
-    public int numChunks = 5; // number of chunks to spawn
 
-    private ComputeBuffer grassBuffer;
-    private ComputeBuffer argsBuffer;
+    private ComputeBuffer grassBuffer, argsBuffer;
     private int kernelHandle;
 
     void Start()
     {
         kernelHandle = grassComputeShader.FindKernel("CSMain");
 
-        grassBuffer = new ComputeBuffer(chunkDensity * numChunks, sizeof(float) * 3);
+        int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
+        grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 5);
         grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
 
-        uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(chunkDensity * numChunks), 0, 0, 0 };
+        uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(totalGrassBlades), 0, 0, 0 };
         argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         argsBuffer.SetData(args);
 
@@ -30,22 +32,44 @@ public class ModelGrass : MonoBehaviour
 
     void GenerateGrass()
     {
-        grassComputeShader.SetInt("fieldSize", fieldSize);
-        grassComputeShader.SetInt("chunkDensity", chunkDensity);
         grassComputeShader.SetInt("numChunks", numChunks);
-        grassComputeShader.Dispatch(kernelHandle, Mathf.CeilToInt(chunkDensity * numChunks / 10.0f), 1, 1);
+        grassComputeShader.SetInt("chunkDensity", chunkDensity);
+        grassComputeShader.SetFloat("chunkSize", chunkSize);
+        grassComputeShader.SetInt("seed", seed);
+        int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
+        grassComputeShader.Dispatch(kernelHandle, Mathf.CeilToInt(totalGrassBlades / 10.0f), 1, 1);
     }
 
     void Update()
     {
+        if (grassUpdate)
+        {
+            Start();
+            grassUpdate = false;
+        }
+
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
-        Bounds bounds = new Bounds(Vector3.zero, new Vector3(fieldSize * 10, 10, fieldSize * 10));
-        Graphics.DrawMeshInstancedIndirect(grassMesh, 0, grassMaterial, bounds, argsBuffer);
+
+        float boundsSize = numChunks * chunkSize;
+
+        Graphics.DrawMeshInstancedIndirect(
+            grassMesh, 0, grassMaterial, new Bounds(
+                Vector3.zero, new Vector3(
+                    boundsSize, 10.0f, boundsSize
+                )
+            ), argsBuffer
+        );
     }
 
     void OnDestroy()
     {
-        grassBuffer.Release();
-        argsBuffer.Release();
+        if (grassBuffer != null)
+        {
+            grassBuffer.Release();
+        }
+        if (argsBuffer != null)
+        {
+            argsBuffer.Release();
+        }
     }
 }

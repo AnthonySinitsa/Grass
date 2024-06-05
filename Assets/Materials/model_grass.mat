@@ -78,7 +78,10 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Albedo1: {r: 0.26223743, g: 0.6698113, b: 0.313314, a: 1}
+    - _AOColor: {r: 0.4339178, g: 0.46226418, b: 0.4490638, a: 1}
+    - _Albedo1: {r: 0.6784314, g: 0.8980392, b: 0.654902, a: 1}
+    - _Albedo2: {r: 0.3019608, g: 0.4509804, b: 0.3647059, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _TipColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
