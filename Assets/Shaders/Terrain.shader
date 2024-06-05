@@ -4,7 +4,7 @@ Shader "Custom/Terrain"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _NormalMap ("Normal Map", 2D) = "bump" {}
-        _NormalStrength ("Normal Strength", Range(0, 10)) = 1.0
+        _NormalStrength ("Normal Strength", Range(0, 1)) = 1.0
     }
 
     SubShader
