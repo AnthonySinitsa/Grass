@@ -5,12 +5,12 @@ public class ModelGrass : MonoBehaviour
     public ComputeShader grassComputeShader;
     public Material grassMaterial;
     public Mesh grassMesh;
-
     public int numChunks = 5;
     public int chunkDensity = 100;
     public float chunkSize = 10.0f;
     public int seed = 12345;
     public bool grassUpdate = false;
+
 
     private ComputeBuffer grassBuffer, argsBuffer;
     private int kernelHandle;

@@ -56,7 +56,7 @@ Shader "Custom/ModelGrass"
                 );
 
                 // Scale the vertex position by the blade's height
-                rotatedPosition.y *= blade.height;
+                rotatedPosition.y += blade.height;
 
                 // Apply transformations based on instance data
                 float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
@@ -68,7 +68,15 @@ Shader "Custom/ModelGrass"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                return _Albedo1;
+                float3 normal = normalize(float3(0, 1, 0));
+
+                float3 lightDir = normalize(float3(0.5, 1, 0.5));
+
+                float diffuseFactor = max(0.0, dot(normal, lightDir));
+
+                fixed4 diffuseColor = _Albedo1 * diffuseFactor;
+
+                return diffuseColor;
             }
             ENDCG
         }
