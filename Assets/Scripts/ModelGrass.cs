@@ -11,13 +11,19 @@ public class ModelGrass : MonoBehaviour
     public int seed = 12345;
     public bool grassUpdate = false;
 
-
     private ComputeBuffer grassBuffer, argsBuffer;
     private int kernelHandle;
 
     void Start()
     {
         kernelHandle = grassComputeShader.FindKernel("CSMain");
+        InitializeBuffers();
+        GenerateGrass();
+    }
+
+    void InitializeBuffers()
+    {
+        ReleaseBuffers();
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
         grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 5);
@@ -26,8 +32,6 @@ public class ModelGrass : MonoBehaviour
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(totalGrassBlades), 0, 0, 0 };
         argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         argsBuffer.SetData(args);
-
-        GenerateGrass();
     }
 
     void GenerateGrass()
@@ -44,7 +48,8 @@ public class ModelGrass : MonoBehaviour
     {
         if (grassUpdate)
         {
-            Start();
+            InitializeBuffers();
+            GenerateGrass();
             grassUpdate = false;
         }
 
@@ -63,13 +68,20 @@ public class ModelGrass : MonoBehaviour
 
     void OnDestroy()
     {
+        ReleaseBuffers();
+    }
+
+    void ReleaseBuffers()
+    {
         if (grassBuffer != null)
         {
             grassBuffer.Release();
+            grassBuffer = null;
         }
         if (argsBuffer != null)
         {
             argsBuffer.Release();
+            argsBuffer = null;
         }
     }
 }
