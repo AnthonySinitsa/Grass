@@ -28,6 +28,7 @@ Shader "Custom/ModelGrass"
             {
                 float3 position;
                 float facing;
+                float tilt;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -54,17 +55,30 @@ Shader "Custom/ModelGrass"
 
                 float cosTheta = cos(blade.facing);
                 float sinTheta = sin(blade.facing);
+
+                // Rotate the vertex position based on the facing direction
                 float3 rotatedPosition = float3(
                     v.vertex.x * cosTheta - v.vertex.z * sinTheta,
                     v.vertex.y,
                     v.vertex.x * sinTheta + v.vertex.z * cosTheta
                 );
 
-                // Scale the vertex position by the blade's height
-                rotatedPosition.y += blade.position.y;
+                // Apply tilt around the local X axis
+                float tiltAngle = blade.tilt;
+                float cosTilt = cos(tiltAngle);
+                float sinTilt = sin(tiltAngle);
+                float3 tiltedPosition = float3(
+                    rotatedPosition.x,
+                    rotatedPosition.y * cosTilt - rotatedPosition.z * sinTilt,
+                    rotatedPosition.y * sinTilt + rotatedPosition.z * cosTilt
+                );
+
+                // Scale the vertex position by the blade's height and add the blade's position
+                tiltedPosition.y += blade.position.y;
+                
 
                 // Apply transformations based on instance data
-                float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
+                float4 worldPos = float4(blade.position + tiltedPosition, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.vertex.xy;
 

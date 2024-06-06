@@ -6,12 +6,13 @@ struct GrassBlade
 {
     float3 position;
     float facing;
+    float tilt;
 };
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
 int numChunks, chunkDensity, seed;
-float chunkSize, globalTime, voronoiScale;
+float chunkSize, globalTime, voronoiScale, tilt;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
@@ -48,6 +49,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     blade.position = position;
     blade.facing = facing;
+    blade.tilt = tilt;
 
     grassBuffer[id.x] = blade;
 }
