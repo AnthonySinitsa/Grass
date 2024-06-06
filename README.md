@@ -95,11 +95,27 @@ This is a repo I am using to learn different ways to render grass. This first va
   - Start with evenly spaced points and apply small random offset to each one
   - Use voronoi noise to give ways of clumping the grass
 
+- For any given position in a 2d space, look at nearest nine points on a grid, each is jittered according to hash to give variation
+  - Assign this 2d sample point to nearest points clump
+  - With this shared clump and our distance to it we can influence various grass parameters
+
 - Add angle variation by rotating each blade, do that in shader via per blade hash value
 
-- Cubic Bezier curve to model the shape of the grass(AKA droopiness)
-  - or
+- Curve
   - Could just use a simple rotation of the vertex on the x-axis based on the height and random per blade curve value
+    - or
+    - For Cubic Bezier curve
+      - Position easy to calculate
+      - Derivative easy to calculate
+        - Use derivative to find normal
+      - Moving control points changes blade shape
+        - Usefule for animation
+        - Useful for varying apearance of grass
+    - Decide position of the tip relative to the base
+    - Controlled by tilt parameter as well as the facing
+    - Next define a midpoint which is controlled by the bend parameter
+      - If bend is zero then midpoint lies along line between base and tip
+      - If midpoint larger than zero then push blade up and away from that center line
 
 - Slightly round the normal instead of having flat grass normals
   - In the shader use two rotated normals and blend between them
