@@ -27,7 +27,7 @@ Shader "Custom/ModelGrass"
             struct GrassBlade
             {
                 float3 position;
-                float rotation;
+                float facing;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -52,8 +52,8 @@ Shader "Custom/ModelGrass"
                 v2f o;
                 GrassBlade blade = grassBuffer[v.instanceID];
 
-                float cosTheta = cos(blade.rotation);
-                float sinTheta = sin(blade.rotation);
+                float cosTheta = cos(blade.facing);
+                float sinTheta = sin(blade.facing);
                 float3 rotatedPosition = float3(
                     v.vertex.x * cosTheta - v.vertex.z * sinTheta,
                     v.vertex.y,

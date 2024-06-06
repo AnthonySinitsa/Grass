@@ -101,6 +101,13 @@ This is a repo I am using to learn different ways to render grass. This first va
 
 - Add angle variation by rotating each blade, do that in shader via per blade hash value
 
+- Generating Grass Blade
+  - Position, and Facing
+  - Wind Strength at position which drives animation
+  - Per-blade position based hash that drives various things on the blade including animation
+  - Clump facing
+  - Height for terrian, Width, Tilt, Bend, Side Curve
+
 - Curve
   - Could just use a simple rotation of the vertex on the x-axis based on the height and random per blade curve value
     - or
