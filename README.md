@@ -116,6 +116,13 @@ This is a repo I am using to learn different ways to render grass. This first va
     - Next define a midpoint which is controlled by the bend parameter
       - If bend is zero then midpoint lies along line between base and tip
       - If midpoint larger than zero then push blade up and away from that center line
+    - Now that we know where are control points are, it's straightforward to determine our world space position for our vertex
+      - Take our zero to one value that determines where we are along the blade and feed that into Bezier curve function
+      - Next take our facing direction, flip the x and y and negate to find a normal orthogonal to our facing
+      - Step our vertex in the normals direction the distance depending on the width of the blade calculated in the compute and scaled by where we are along the blade
+      - Taper down as we reach the tip
+      - Define vertex normal
+        - Find the derivative of bezier curve at our position and cross it with the normal we just found
 
 - Slightly round the normal instead of having flat grass normals
   - In the shader use two rotated normals and blend between them
