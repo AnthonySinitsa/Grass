@@ -7,6 +7,8 @@ public class ModelGrass : MonoBehaviour
     public Mesh grassMesh;
     public int numChunks = 5;
     public int chunkDensity = 100;
+    [Range(0.0f, 1.0f)]
+    public float tilt = 0.0f;
     public float voronoiScale = 1.0f;
     public float chunkSize = 10.0f;
     public bool grassUpdate = false;
@@ -39,6 +41,7 @@ public class ModelGrass : MonoBehaviour
     {
         grassComputeShader.SetInt("numChunks", numChunks);
         grassComputeShader.SetInt("chunkDensity", chunkDensity);
+        grassComputeShader.SetFloat("tilt", tilt);
         grassComputeShader.SetFloat("voronoiScale", voronoiScale);
         grassComputeShader.SetFloat("chunkSize", chunkSize);
         grassComputeShader.SetInt("seed", seed);
@@ -57,7 +60,7 @@ public class ModelGrass : MonoBehaviour
 
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
 
-        float boundsSize = numChunks * chunkSize;
+        float boundsSize = numChunks * chunkSize * 2;
 
         Graphics.DrawMeshInstancedIndirect(
             grassMesh, 0, grassMaterial, new Bounds(

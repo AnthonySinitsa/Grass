@@ -5,14 +5,14 @@
 struct GrassBlade
 {
     float3 position;
-    float rotation;
-    float height;
+    float facing;
+    float tilt;
 };
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
 int numChunks, chunkDensity, seed;
-float chunkSize, globalTime, voronoiScale;
+float chunkSize, globalTime, voronoiScale, tilt;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
@@ -40,18 +40,16 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // Calculate world position and scale by chunk size, adding random offsets
     float3 position;
     position.x = chunkX * chunkSize + (bladeX * chunkSize) / chunkDensity + randomX * (chunkSize / chunkDensity);
-    position.y = 0.5;
     position.z = chunkZ * chunkSize + (bladeZ * chunkSize) / chunkDensity + randomZ * (chunkSize / chunkDensity);
-
-    // Calculate random rotation
-    float rotation = randValue(seed * 3) * 360.0;
-
-    // Calculate Voronoi noise value for height using 2D noise
     float voronoiValue = voronoi(float2(position.x, position.z) * voronoiScale, globalTime);
+    position.y = voronoiValue;
+    
+    // Calculate random facing
+    float facing = randValue(seed * 3) * 360.0;
 
     blade.position = position;
-    blade.rotation = rotation;
-    blade.height = voronoiValue;
+    blade.facing = facing;
+    blade.tilt = tilt;
 
     grassBuffer[id.x] = blade;
 }

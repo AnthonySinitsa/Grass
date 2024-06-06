@@ -95,11 +95,41 @@ This is a repo I am using to learn different ways to render grass. This first va
   - Start with evenly spaced points and apply small random offset to each one
   - Use voronoi noise to give ways of clumping the grass
 
+- For any given position in a 2d space, look at nearest nine points on a grid, each is jittered according to hash to give variation
+  - Assign this 2d sample point to nearest points clump
+  - With this shared clump and our distance to it we can influence various grass parameters
+
 - Add angle variation by rotating each blade, do that in shader via per blade hash value
 
-- Cubic Bezier curve to model the shape of the grass(AKA droopiness)
-  - or
+- Generating Grass Blade
+  - Position, and Facing
+  - Wind Strength at position which drives animation
+  - Per-blade position based hash that drives various things on the blade including animation
+  - Clump facing
+  - Height for terrian, Width, Tilt, Bend, Side Curve
+
+- Curve
   - Could just use a simple rotation of the vertex on the x-axis based on the height and random per blade curve value
+    - or
+    - For Cubic Bezier curve
+      - Position easy to calculate
+      - Derivative easy to calculate
+        - Use derivative to find normal
+      - Moving control points changes blade shape
+        - Usefule for animation
+        - Useful for varying apearance of grass
+    - Decide position of the tip relative to the base
+    - Controlled by tilt parameter as well as the facing
+    - Next define a midpoint which is controlled by the bend parameter
+      - If bend is zero then midpoint lies along line between base and tip
+      - If midpoint larger than zero then push blade up and away from that center line
+    - Now that we know where are control points are, it's straightforward to determine our world space position for our vertex
+      - Take our zero to one value that determines where we are along the blade and feed that into Bezier curve function
+      - Next take our facing direction, flip the x and y and negate to find a normal orthogonal to our facing
+      - Step our vertex in the normals direction the distance depending on the width of the blade calculated in the compute and scaled by where we are along the blade
+      - Taper down as we reach the tip
+      - Define vertex normal
+        - Find the derivative of bezier curve at our position and cross it with the normal we just found
 
 - Slightly round the normal instead of having flat grass normals
   - In the shader use two rotated normals and blend between them
