@@ -49,31 +49,42 @@ Shader "Custom/ModelGrass"
 
             fixed4 _Albedo1, _Albedo2, _AOColor, _TipColor;
 
+
+            float3 Tilt(float3 vertex, float tiltAngle)
+            {
+                float cosTilt = cos(tiltAngle);
+                float sinTilt = sin(tiltAngle);
+
+                return float3(
+                    vertex.x,
+                    vertex.y * cosTilt - vertex.z * sinTilt,
+                    vertex.y * sinTilt + vertex.z * cosTilt
+                );
+            }
+
+            float3 Rotate(float3 vertex, float facingAngle)
+            {
+                float cosTheta = cos(facingAngle);
+                float sinTheta = sin(facingAngle);
+
+                return float3(
+                    vertex.x * cosTheta - vertex.z * sinTheta,
+                    vertex.y,
+                    vertex.x * sinTheta + vertex.z * cosTheta
+                );
+            }
+
+
             v2f vert(appdata v)
             {
                 v2f o;
                 GrassBlade blade = grassBuffer[v.instanceID];
 
-                // Tilt the vertex position around the local Z axis first
-                float tiltAngle = blade.tilt;
-                float cosTilt = cos(tiltAngle);
-                float sinTilt = sin(tiltAngle);
+                // Apply tilt
+                float3 tiltedPosition = Tilt(v.vertex.xyz, blade.tilt);
 
-                float3 tiltedPosition = float3(
-                    v.vertex.x,
-                    v.vertex.y * cosTilt - v.vertex.z * sinTilt,
-                    v.vertex.y * sinTilt + v.vertex.z * cosTilt
-                );
-
-                // Rotate the tilted position based on the facing direction
-                float cosTheta = cos(blade.facing);
-                float sinTheta = sin(blade.facing);
-
-                float3 rotatedPosition = float3(
-                    tiltedPosition.x * cosTheta - tiltedPosition.z * sinTheta,
-                    tiltedPosition.y,
-                    tiltedPosition.x * sinTheta + tiltedPosition.z * cosTheta
-                );
+                // Apply rotation
+                float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
 
                 // Scale the vertex position by the blade's height and add the blade's position
                 rotatedPosition.y += blade.position.y;
