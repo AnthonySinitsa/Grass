@@ -23,6 +23,7 @@ Shader "Custom/ModelGrass"
             #include "UnityPBSLighting.cginc"
             #include "AutoLight.cginc"
             #include "UnityCG.cginc"
+            #include "../Resources/Bezier.cginc"
 
             struct GrassBlade
             {
