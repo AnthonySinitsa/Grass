@@ -7,6 +7,7 @@ public class ModelGrass : MonoBehaviour
     public Mesh grassMesh;
     public int numChunks = 5;
     public int chunkDensity = 100;
+    [Range(0.0f, 1.0f)]
     public float tilt = 0.0f;
     public float voronoiScale = 1.0f;
     public float chunkSize = 10.0f;

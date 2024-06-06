@@ -53,32 +53,30 @@ Shader "Custom/ModelGrass"
                 v2f o;
                 GrassBlade blade = grassBuffer[v.instanceID];
 
-                float cosTheta = cos(blade.facing);
-                float sinTheta = sin(blade.facing);
-
-                // Rotate the vertex position based on the facing direction
-                float3 rotatedPosition = float3(
-                    v.vertex.x * cosTheta - v.vertex.z * sinTheta,
-                    v.vertex.y,
-                    v.vertex.x * sinTheta + v.vertex.z * cosTheta
-                );
-
-                // Apply tilt around the local X axis
+                // Tilt the vertex position around the local Z axis first
                 float tiltAngle = blade.tilt;
                 float cosTilt = cos(tiltAngle);
                 float sinTilt = sin(tiltAngle);
+
                 float3 tiltedPosition = float3(
-                    rotatedPosition.x,
-                    rotatedPosition.y * cosTilt - rotatedPosition.z * sinTilt,
-                    rotatedPosition.y * sinTilt + rotatedPosition.z * cosTilt
+                    v.vertex.x,
+                    v.vertex.y * cosTilt - v.vertex.z * sinTilt,
+                    v.vertex.y * sinTilt + v.vertex.z * cosTilt
+                );
+
+                // Rotate the tilted position based on the facing direction
+                float cosTheta = cos(blade.facing);
+                float sinTheta = sin(blade.facing);
+
+                float3 rotatedPosition = float3(
+                    tiltedPosition.x * cosTheta - tiltedPosition.z * sinTheta,
+                    tiltedPosition.y,
+                    tiltedPosition.x * sinTheta + tiltedPosition.z * cosTheta
                 );
 
                 // Scale the vertex position by the blade's height and add the blade's position
-                tiltedPosition.y += blade.position.y;
-                
-
-                // Apply transformations based on instance data
-                float4 worldPos = float4(blade.position + tiltedPosition, 1.0);
+                rotatedPosition.y += blade.position.y;
+                float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.vertex.xy;
 
