@@ -27,7 +27,7 @@ public class ModelGrass : MonoBehaviour
         OnDestroy();
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
-        grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 5);
+        grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 4);
         grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
 
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(totalGrassBlades), 0, 0, 0 };
@@ -57,7 +57,7 @@ public class ModelGrass : MonoBehaviour
 
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
 
-        float boundsSize = numChunks * chunkSize;
+        float boundsSize = numChunks * chunkSize * 2;
 
         Graphics.DrawMeshInstancedIndirect(
             grassMesh, 0, grassMaterial, new Bounds(
