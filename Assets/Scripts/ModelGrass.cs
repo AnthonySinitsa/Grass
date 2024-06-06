@@ -9,6 +9,8 @@ public class ModelGrass : MonoBehaviour
     public int chunkDensity = 100;
     [Range(0.0f, 1.0f)]
     public float tilt = 0.0f;
+    [Range(0.0f, 1.0f)]
+    public float midPoint = 0.0f;
     public float voronoiScale = 1.0f;
     public float chunkSize = 10.0f;
     public bool grassUpdate = false;
@@ -29,7 +31,7 @@ public class ModelGrass : MonoBehaviour
         OnDestroy();
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
-        grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 5);
+        grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 8);
         grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
 
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(totalGrassBlades), 0, 0, 0 };
@@ -42,6 +44,7 @@ public class ModelGrass : MonoBehaviour
         grassComputeShader.SetInt("numChunks", numChunks);
         grassComputeShader.SetInt("chunkDensity", chunkDensity);
         grassComputeShader.SetFloat("tilt", tilt);
+        grassComputeShader.SetFloat("midPoint", midPoint);
         grassComputeShader.SetFloat("voronoiScale", voronoiScale);
         grassComputeShader.SetFloat("chunkSize", chunkSize);
         grassComputeShader.SetInt("seed", seed);

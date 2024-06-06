@@ -30,6 +30,7 @@ Shader "Custom/ModelGrass"
                 float3 position;
                 float facing;
                 float tilt;
+                float3 midpoint;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
