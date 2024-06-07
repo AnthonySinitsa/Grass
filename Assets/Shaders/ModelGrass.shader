@@ -23,12 +23,14 @@ Shader "Custom/ModelGrass"
             #include "UnityPBSLighting.cginc"
             #include "AutoLight.cginc"
             #include "UnityCG.cginc"
+            #include "../Resources/Bezier.cginc"
 
             struct GrassBlade
             {
                 float3 position;
                 float facing;
                 float tilt;
+                float bend;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -38,47 +40,79 @@ Shader "Custom/ModelGrass"
                 uint instanceID : SV_InstanceID;
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
+                float2 uv : TEXCOORD0;
             };
 
             struct v2f
             {
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float3 normal : TEXCOORD1;
             };
 
             fixed4 _Albedo1, _Albedo2, _AOColor, _TipColor;
+
+
+            float3 Tilt(float3 vertex, float tiltAngle)
+            {
+                float cosTilt = cos(tiltAngle);
+                float sinTilt = sin(tiltAngle);
+
+                return float3(
+                    vertex.x,
+                    vertex.y * cosTilt - vertex.z * sinTilt,
+                    vertex.y * sinTilt + vertex.z * cosTilt
+                );
+            }
+
+            float3 Rotate(float3 vertex, float facingAngle)
+            {
+                float cosTheta = cos(facingAngle);
+                float sinTheta = sin(facingAngle);
+
+                return float3(
+                    vertex.x * cosTheta - vertex.z * sinTheta,
+                    vertex.y,
+                    vertex.x * sinTheta + vertex.z * cosTheta
+                );
+            }
+
 
             v2f vert(appdata v)
             {
                 v2f o;
                 GrassBlade blade = grassBuffer[v.instanceID];
 
-                // Tilt the vertex position around the local Z axis first
-                float tiltAngle = blade.tilt;
-                float cosTilt = cos(tiltAngle);
-                float sinTilt = sin(tiltAngle);
+                // Apply tilt
+                float3 tiltedPosition = Tilt(v.vertex.xyz, blade.tilt);
 
-                float3 tiltedPosition = float3(
-                    v.vertex.x,
-                    v.vertex.y * cosTilt - v.vertex.z * sinTilt,
-                    v.vertex.y * sinTilt + v.vertex.z * cosTilt
-                );
+                // Apply rotation
+                float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
 
-                // Rotate the tilted position based on the facing direction
-                float cosTheta = cos(blade.facing);
-                float sinTheta = sin(blade.facing);
+                // Base, controlPos1/2, and tip positions for Bezier curve
+                float3 basePos = blade.position;
+                float3 controlPos1 = blade.position + float3(0, 0.5, 0);
+                float3 controlPos2 = blade.position + float3(blade.bend, 0.5, 0);
+                float3 tipPos = blade.position + float3(0.0, 1.0, 0.0);
 
-                float3 rotatedPosition = float3(
-                    tiltedPosition.x * cosTheta - tiltedPosition.z * sinTheta,
-                    tiltedPosition.y,
-                    tiltedPosition.x * sinTheta + tiltedPosition.z * cosTheta
-                );
+                // Calculate t based on vertex's y position(assuming y ranges from 0 to 1)
+                float t = rotatedPosition.y;
 
-                // Scale the vertex position by the blade's height and add the blade's position
+                // Calculate the position on the Bezier curve
+                float3 curvePos = CurveSolve(basePos, controlPos1, controlPos2, tipPos, t);
+
+                // Calculate two rotated normals
+                float3 normal1 = Rotate(v.normal, blade.facing);
+                float3 normal2 = Rotate(v.normal, blade.facing + 1.57);
+
+                // Blend between the two rotated normals
+                o.normal = normalize(lerp(normal1, normal2, v.vertex.xyz));
+
+                // Exaggerate the height more if needed
                 rotatedPosition.y += blade.position.y;
-                float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
+                float4 worldPos = float4(blade.position + rotatedPosition + curvePos, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
-                o.uv = v.vertex.xy;
+                o.uv = v.uv;
 
                 return o;
             }
@@ -87,7 +121,8 @@ Shader "Custom/ModelGrass"
             {
                 float4 col = lerp(_Albedo1, _Albedo2, i.uv.y);
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
-                float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
+                // float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
+                float ndotl = max(dot(i.normal, lightDir), 0.0);
 
                 float4 ao = lerp(_AOColor, 1.0, i.uv.y);
                 float4 tip = lerp(0.0, _TipColor, i.uv.y * i.uv.y);
