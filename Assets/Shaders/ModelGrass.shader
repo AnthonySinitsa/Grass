@@ -87,12 +87,22 @@ Shader "Custom/ModelGrass"
                 // Apply rotation
                 float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
 
-                // Scale the vertex position by the blade's height and add the blade's position
+                // Base, midpoint, and tip positions for Bezier curve
+                float3 basePos = blade.position;
+                float3 controlPos = blade.midpoint;
+                float3 tipPos = blade.position + float3(0.0, 1.0, 0.0);
+
+                // Calculate t based on vertex's y position(assuming y ranges from 0 to 1)
+                float t = rotatedPosition.y;
+
+                // Calculate the position on the Bezier curve
+                float3 curvePos = CurveSolve(basePos, controlPos, controlPos, tipPos, t);
+
+                // Exagurate the height more if needed
                 rotatedPosition.y += blade.position.y;
-                float4 worldPos = float4(blade.position + rotatedPosition, 1.0);
+                float4 worldPos = float4(blade.position + rotatedPosition + curvePos, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.vertex.xy;
-
                 return o;
             }
 

@@ -14,6 +14,7 @@ RWStructuredBuffer<GrassBlade> grassBuffer;
 
 int numChunks, chunkDensity, seed;
 float chunkSize, globalTime, voronoiScale, tilt, midpoint;
+float3 position;
 
 [numthreads(10, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
@@ -39,7 +40,6 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     float randomZ = randValue(seed * 2) - 0.2;
 
     // Calculate world position and scale by chunk size, adding random offsets
-    float3 position;
     position.x = chunkX * chunkSize + (bladeX * chunkSize) / chunkDensity + randomX * (chunkSize / chunkDensity);
     position.z = chunkZ * chunkSize + (bladeZ * chunkSize) / chunkDensity + randomZ * (chunkSize / chunkDensity);
     float voronoiValue = voronoi(float2(position.x, position.z) * voronoiScale, globalTime);
@@ -47,6 +47,9 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     
     // Calculate random facing
     float facing = randValue(seed * 3) * 360.0;
+
+    // Calculate midpoint for the Bezier curve
+    float3 midpoint = position + float3(0, 0.5, 0);
 
     blade.position = position;
     blade.facing = facing;
