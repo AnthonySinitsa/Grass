@@ -7,13 +7,13 @@ struct GrassBlade
     float3 position;
     float facing;
     float tilt;
-    float3 midpoint;
+    float bend;
 };
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
 int numChunks, chunkDensity, seed;
-float chunkSize, globalTime, voronoiScale, tilt, midpoint;
+float chunkSize, globalTime, voronoiScale, tilt, bend;
 float3 position;
 
 [numthreads(10, 1, 1)]
@@ -48,13 +48,10 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // Calculate random facing
     float facing = randValue(seed * 3) * 360.0;
 
-    // Calculate midpoint for the Bezier curve
-    float3 midpoint = position + float3(0, 0.5, 0);
-
     blade.position = position;
     blade.facing = facing;
     blade.tilt = tilt;
-    blade.midpoint = midpoint;
+    blade.bend = bend;
 
     grassBuffer[id.x] = blade;
 }

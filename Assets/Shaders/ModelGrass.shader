@@ -30,7 +30,7 @@ Shader "Custom/ModelGrass"
                 float3 position;
                 float facing;
                 float tilt;
-                float3 midpoint;
+                float bend;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -87,16 +87,17 @@ Shader "Custom/ModelGrass"
                 // Apply rotation
                 float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
 
-                // Base, midpoint, and tip positions for Bezier curve
+                // Base, controlPos1/2, and tip positions for Bezier curve
                 float3 basePos = blade.position;
-                float3 controlPos = blade.midpoint;
+                float3 controlPos1 = blade.position + float3(0, 0.5, 0);
+                float3 controlPos2 = blade.position + float3(blade.bend, 0.5, 0);
                 float3 tipPos = blade.position + float3(0.0, 1.0, 0.0);
 
                 // Calculate t based on vertex's y position(assuming y ranges from 0 to 1)
                 float t = rotatedPosition.y;
 
                 // Calculate the position on the Bezier curve
-                float3 curvePos = CurveSolve(basePos, controlPos, controlPos, tipPos, t);
+                float3 curvePos = CurveSolve(basePos, controlPos1, controlPos2, tipPos, t);
 
                 // Exagurate the height more if needed
                 rotatedPosition.y += blade.position.y;
