@@ -31,6 +31,7 @@ Shader "Custom/ModelGrass"
                 float facing;
                 float tilt;
                 float bend;
+                float width;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -101,13 +102,6 @@ Shader "Custom/ModelGrass"
                 // Calculate the position on the Bezier curve
                 float3 curvePos = CurveSolve(basePos, controlPos1, controlPos2, tipPos, t);
 
-                // Calculate two rotated normals
-                float3 normal1 = Rotate(v.normal, blade.facing);
-                float3 normal2 = Rotate(v.normal, blade.facing + 1.57);
-
-                // Blend between the two rotated normals
-                o.normal = normalize(lerp(normal1, normal2, v.vertex.xyz));
-
                 // Exaggerate the height more if needed
                 rotatedPosition.y += blade.position.y;
                 float4 worldPos = float4(blade.position + rotatedPosition + curvePos, 1.0);
@@ -121,8 +115,7 @@ Shader "Custom/ModelGrass"
             {
                 float4 col = lerp(_Albedo1, _Albedo2, i.uv.y);
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
-                // float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
-                float ndotl = max(dot(i.normal, lightDir), 0.0);
+                float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
 
                 float4 ao = lerp(_AOColor, 1.0, i.uv.y);
                 float4 tip = lerp(0.0, _TipColor, i.uv.y * i.uv.y);
