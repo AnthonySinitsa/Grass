@@ -52,7 +52,6 @@ Shader "Custom/ModelGrass"
             };
 
             fixed4 _Albedo1, _Albedo2, _AOColor, _TipColor;
-            static const float PI = 3.14159265359;
 
 
             float3 Tilt(float3 vertex, float tiltAngle)
