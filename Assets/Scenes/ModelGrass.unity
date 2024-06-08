@@ -174,7 +174,7 @@ MonoBehaviour:
   grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
   numChunks: 1
   chunkDensity: 10
-  tilt: 0.5
+  tilt: 1
   bend: 1
   width: 0.09
   voronoiScale: 0.2
