@@ -66,6 +66,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _Droop: 0
     - _DstBlend: 0
+    - _FacingBlend: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -73,16 +74,17 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _Radius: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _AOColor: {r: 0.4339178, g: 0.46226418, b: 0.4490638, a: 1}
-    - _Albedo1: {r: 0.6784314, g: 0.8980392, b: 0.654902, a: 1}
-    - _Albedo2: {r: 0.3019608, g: 0.4509804, b: 0.3647059, a: 1}
+    - _AOColor: {r: 0.4627451, g: 0.46237394, b: 0.43529412, a: 1}
+    - _Albedo1: {r: 0.750434, g: 0.8980392, b: 0.654902, a: 1}
+    - _Albedo2: {r: 0.4004196, g: 0.4509804, b: 0.3019608, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _TipColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TipColor: {r: 0.6415094, g: 0.5585593, b: 0.2753649, a: 1}
   m_BuildTextureStacks: []

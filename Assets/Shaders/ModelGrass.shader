@@ -31,6 +31,7 @@ Shader "Custom/ModelGrass"
                 float facing;
                 float tilt;
                 float bend;
+                float width;
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
@@ -91,22 +92,15 @@ Shader "Custom/ModelGrass"
 
                 // Base, controlPos1/2, and tip positions for Bezier curve
                 float3 basePos = blade.position;
-                float3 controlPos1 = blade.position + float3(0, 0.5, 0);
-                float3 controlPos2 = blade.position + float3(blade.bend, 0.5, 0);
-                float3 tipPos = blade.position + float3(0.0, 1.0, 0.0);
+                float3 controlPos1 = basePos + float3(0, 0.5, 0);
+                float3 controlPos2 = basePos + Rotate(float3(0, 0, blade.bend), blade.facing);
+                float3 tipPos = basePos + float3(0, 1.0, 0);
 
-                // Calculate t based on vertex's y position(assuming y ranges from 0 to 1)
+                // Calculate t based on vertex's y position
                 float t = rotatedPosition.y;
 
                 // Calculate the position on the Bezier curve
                 float3 curvePos = CurveSolve(basePos, controlPos1, controlPos2, tipPos, t);
-
-                // Calculate two rotated normals
-                float3 normal1 = Rotate(v.normal, blade.facing);
-                float3 normal2 = Rotate(v.normal, blade.facing + 1.57);
-
-                // Blend between the two rotated normals
-                o.normal = normalize(lerp(normal1, normal2, v.vertex.xyz));
 
                 // Exaggerate the height more if needed
                 rotatedPosition.y += blade.position.y;
@@ -121,8 +115,7 @@ Shader "Custom/ModelGrass"
             {
                 float4 col = lerp(_Albedo1, _Albedo2, i.uv.y);
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
-                // float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
-                float ndotl = max(dot(i.normal, lightDir), 0.0);
+                float ndotl = DotClamped(lightDir, normalize(float3(0, 1, 0)));
 
                 float4 ao = lerp(_AOColor, 1.0, i.uv.y);
                 float4 tip = lerp(0.0, _TipColor, i.uv.y * i.uv.y);

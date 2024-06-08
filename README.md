@@ -153,6 +153,7 @@ This is a repo I am using to learn different ways to render grass. This first va
   - Now apply viewspace adjustment
   - `mvPosition = modelViewMatrix * position`
   - `mvPosition.x += viewSpaceThickenFactor * xDirection * grassWidth`
+  - Shift the verts in viewspace when the blades normal is orthogonal to the view vector
 
 - Add a gradient from base to tip
 
