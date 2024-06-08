@@ -52,6 +52,7 @@ Shader "Custom/ModelGrass"
             };
 
             fixed4 _Albedo1, _Albedo2, _AOColor, _TipColor;
+            static const float PI = 3.14159265359;
 
 
             float3 Tilt(float3 vertex, float tiltAngle)
@@ -93,10 +94,10 @@ Shader "Custom/ModelGrass"
                 // Base, controlPos1/2, and tip positions for Bezier curve
                 float3 basePos = blade.position;
                 float3 controlPos1 = basePos + float3(0, 0.5, 0);
-                float3 controlPos2 = basePos + Rotate(float3(0, 0.5, blade.bend), blade.facing);
+                float3 controlPos2 = basePos + Rotate(float3(0, 0, blade.bend), blade.facing);
                 float3 tipPos = basePos + Rotate(float3(0, 1.0, 0), blade.facing);
 
-                // Calculate t based on vertex's y position(assuming y ranges from 0 to 1)
+                // Calculate t based on vertex's y position
                 float t = rotatedPosition.y;
 
                 // Calculate the position on the Bezier curve

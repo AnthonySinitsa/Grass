@@ -175,7 +175,8 @@ MonoBehaviour:
   numChunks: 1
   chunkDensity: 10
   tilt: 0.5
-  midPoint: 0
+  bend: 0
+  width: 0.09
   voronoiScale: 0.2
   chunkSize: 10
   grassUpdate: 0
