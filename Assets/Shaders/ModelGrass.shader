@@ -92,9 +92,9 @@ Shader "Custom/ModelGrass"
 
                 // Base, controlPos1/2, and tip positions for Bezier curve
                 float3 basePos = blade.position;
-                float3 controlPos1 = blade.position + float3(0, 0.5, 0);
-                float3 controlPos2 = blade.position + float3(blade.bend, 0.5, 0);
-                float3 tipPos = blade.position + float3(0.0, 1.0, 0.0);
+                float3 controlPos1 = basePos + float3(0, 0.5, 0);
+                float3 controlPos2 = basePos + Rotate(float3(0, 0.5, blade.bend), blade.facing);
+                float3 tipPos = basePos + Rotate(float3(0, 1.0, 0), blade.facing);
 
                 // Calculate t based on vertex's y position(assuming y ranges from 0 to 1)
                 float t = rotatedPosition.y;
