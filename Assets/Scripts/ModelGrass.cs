@@ -65,7 +65,7 @@ public class ModelGrass : MonoBehaviour
 
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
 
-        float boundsSize = numChunks * chunkSize * 2;
+        float boundsSize = numChunks * chunkSize * 5;
 
         Graphics.DrawMeshInstancedIndirect(
             grassMesh, 0, grassMaterial, new Bounds(
