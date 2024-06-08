@@ -95,7 +95,7 @@ Shader "Custom/ModelGrass"
                 float3 basePos = blade.position;
                 float3 controlPos1 = basePos + float3(0, 0.5, 0);
                 float3 controlPos2 = basePos + Rotate(float3(0, 0, blade.bend), blade.facing);
-                float3 tipPos = basePos + Rotate(float3(0, 1.0, 0), blade.facing);
+                float3 tipPos = basePos + float3(0, 1.0, 0);
 
                 // Calculate t based on vertex's y position
                 float t = rotatedPosition.y;
