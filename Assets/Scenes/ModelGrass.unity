@@ -173,15 +173,15 @@ MonoBehaviour:
   windComputeShader: {fileID: 7200000, guid: cf36764e45ec6ca48bd5c6460e219b5b, type: 3}
   grassMaterial: {fileID: 2100000, guid: 21d0a01e5d398ac47a7f469eb3829dac, type: 2}
   grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
-  numChunks: 1
-  chunkDensity: 10
+  numChunks: 5
+  chunkDensity: 50
   tilt: 1
   bend: 1
   width: 0.09
   voronoiScale: 0.2
-  chunkSize: 10
+  chunkSize: 20
   grassUpdate: 0
-  windSpeed: 1
+  windSpeed: 0.5
   frequency: 0.01
   windStrength: 1
 --- !u!64 &941164295
@@ -261,6 +261,7 @@ GameObject:
   - component: {fileID: 948754968}
   - component: {fileID: 948754972}
   - component: {fileID: 948754971}
+  - component: {fileID: 948754973}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -335,8 +336,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948754967}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.019309578, y: 0.3987703, z: -0.00839879, w: 0.9168091}
+  m_LocalPosition: {x: 6.9940414, y: 3.7713773, z: 6.5663023}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -395,6 +396,22 @@ MonoBehaviour:
     m_RotationOrder: 4
   rotationLerpTime: 0.01
   invertY: 0
+--- !u!114 &948754973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948754967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc8882205d3edf048ab61f20e5860df9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fogShader: {fileID: 4800000, guid: 946f1575defbaab48b1281aa7dfed983, type: 3}
+  fogColor: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 0}
+  fogDensity: 0.0115533825
+  fogOffset: 4.74153
 --- !u!1 &1526191631
 GameObject:
   m_ObjectHideFlags: 0
@@ -589,8 +606,8 @@ Transform:
   m_GameObject: {fileID: 1579646597}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5, y: 0, z: 5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 50, y: 0, z: 50}
+  m_LocalScale: {x: 100, y: 1, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
