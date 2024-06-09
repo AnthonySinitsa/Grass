@@ -79,14 +79,6 @@ Shader "Custom/ModelGrass"
                 );
             }
 
-            float4 RotateAroundYInDegrees (float3 vertex, float4 rotation) {
-                float alpha = rotation.y * UNITY_PI / 180.0;
-                float sina, cosa;
-                sincos(alpha, sina, cosa);
-                float3x3 m = float3x3(cosa, 0, sina, 0, 1, 0, -sina, 0, cosa);
-                return float4(mul(m, vertex), 1.0);
-            }
-
 
             v2f vert(appdata v)
             {
