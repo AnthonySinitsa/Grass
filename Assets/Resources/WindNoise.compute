@@ -1,5 +1,7 @@
 #pragma kernel CSMain
 
+#include "Simplex.compute"
+
 cbuffer WindParams
 {
     float windSpeed;
@@ -13,6 +15,15 @@ RWStructuredBuffer<float3> windBuffer;
 [numthreads(1, 1, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    float wind = sin(id.x * frequency + time * windSpeed) * windStrength;
+    // Generate a position in space based on the id and time
+    float3 position = float3(id.x * frequency, 0.0, time * windSpeed);
+
+    // Generate simplex noise value
+    float noiseValue = snoise(position);
+
+    // Scale the noise value by the wind strength
+    float wind = noiseValue * windStrength;
+
+    // Set the wind buffer value
     windBuffer[id.x] = float3(wind, 0, wind);
 }
