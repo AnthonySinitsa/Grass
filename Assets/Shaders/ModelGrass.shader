@@ -93,7 +93,10 @@ Shader "Custom/ModelGrass"
 
                 // Apply wind effect
                 float3 windEffect = windBuffer[v.instanceID];
-                rotatedPosition += windEffect;
+                
+                // Scale the wind effect based on the y coordinate to affect only the top of the grass
+                float windInfluence = smoothstep(0.0, 1.0, rotatedPosition.y);
+                rotatedPosition += windEffect * windInfluence;
 
                 // Base, controlPos1/2, and tip positions for Bezier curve
                 float3 basePos = blade.position;

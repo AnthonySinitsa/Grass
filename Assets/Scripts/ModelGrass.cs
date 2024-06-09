@@ -98,7 +98,7 @@ public class ModelGrass : MonoBehaviour
         windComputeShader.SetFloat("time", Time.time);
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
-        windComputeShader.Dispatch(windKernelHandle, Mathf.CeilToInt(totalGrassBlades / 10.0f), 1, 1);
+        windComputeShader.Dispatch(windKernelHandle, Mathf.CeilToInt(totalGrassBlades), 1, 1);
     }
 
     void OnDestroy()
