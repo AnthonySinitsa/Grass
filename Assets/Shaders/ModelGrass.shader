@@ -35,6 +35,7 @@ Shader "Custom/ModelGrass"
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
+            StructuredBuffer<float3> windBuffer;
 
             struct appdata
             {
@@ -86,9 +87,16 @@ Shader "Custom/ModelGrass"
 
                 // Apply tilt
                 float3 tiltedPosition = Tilt(v.vertex.xyz, blade.tilt);
+                
+                // Apply wind effect
+                float3 windEffect = windBuffer[v.instanceID];
 
+                // Scale the wind effect based on the y coordinate to affect the entire blade
+                float windInfluence = tiltedPosition.y;
+                
                 // Apply rotation
                 float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
+                rotatedPosition += windEffect * windInfluence;
 
                 // Base, controlPos1/2, and tip positions for Bezier curve
                 float3 basePos = blade.position;
@@ -104,7 +112,7 @@ Shader "Custom/ModelGrass"
 
                 // Exaggerate the height more if needed
                 rotatedPosition.y += blade.position.y;
-                float4 worldPos = float4(blade.position + rotatedPosition + curvePos, 1.0);
+                float4 worldPos = float4(rotatedPosition + curvePos, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.uv;
 
