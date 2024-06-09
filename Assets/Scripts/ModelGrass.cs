@@ -3,6 +3,7 @@ using UnityEngine;
 public class ModelGrass : MonoBehaviour
 {
     public ComputeShader grassComputeShader;
+    public ComputeShader windComputeShader;
     public Material grassMaterial;
     public Mesh grassMesh;
     [Header("Grass")]
@@ -16,14 +17,19 @@ public class ModelGrass : MonoBehaviour
     public float voronoiScale = 1.0f;
     public float chunkSize = 10.0f;
     public bool grassUpdate = false;
+    [Header("Wind")]
+    public float windSpeed = 1.0f;
+    public float frequency = 1.0f;
+    public float windStrength = 1.0f;
 
     private int seed = 12345;
-    private ComputeBuffer grassBuffer, argsBuffer;
-    private int kernelHandle;
+    private ComputeBuffer grassBuffer, argsBuffer, windBuffer;
+    private int grassKernelHandle, windKernelHandle;
 
     void Start()
     {
-        kernelHandle = grassComputeShader.FindKernel("CSMain");
+        grassKernelHandle = grassComputeShader.FindKernel("CSMain");
+        windKernelHandle = windComputeShader.FindKernel("CSMain");
         InitializeBuffers();
         GenerateGrass();
     }
@@ -33,8 +39,12 @@ public class ModelGrass : MonoBehaviour
         OnDestroy();
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
+
         grassBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 7);
-        grassComputeShader.SetBuffer(kernelHandle, "grassBuffer", grassBuffer);
+        windBuffer = new ComputeBuffer(totalGrassBlades, sizeof(float) * 3);
+
+        grassComputeShader.SetBuffer(grassKernelHandle, "grassBuffer", grassBuffer);
+        windComputeShader.SetBuffer(windKernelHandle, "windBuffer", windBuffer);
 
         uint[] args = new uint[5] { grassMesh.GetIndexCount(0), (uint)(totalGrassBlades), 0, 0, 0 };
         argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
@@ -52,11 +62,13 @@ public class ModelGrass : MonoBehaviour
         grassComputeShader.SetFloat("chunkSize", chunkSize);
         grassComputeShader.SetInt("seed", seed);
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
-        grassComputeShader.Dispatch(kernelHandle, Mathf.CeilToInt(totalGrassBlades / 10.0f), 1, 1);
+        grassComputeShader.Dispatch(grassKernelHandle, Mathf.CeilToInt(totalGrassBlades / 10.0f), 1, 1);
     }
 
     void Update()
     {
+        UpdateWind();
+
         if (grassUpdate)
         {
             InitializeBuffers();
@@ -65,6 +77,7 @@ public class ModelGrass : MonoBehaviour
         }
 
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
+        grassMaterial.SetBuffer("windBuffer", windBuffer);
 
         float boundsSize = numChunks * chunkSize * 5;
 
@@ -75,6 +88,17 @@ public class ModelGrass : MonoBehaviour
                 )
             ), argsBuffer
         );
+    }
+
+    void UpdateWind()
+    {
+        windComputeShader.SetFloat("windSpeed", windSpeed);
+        windComputeShader.SetFloat("frequency", frequency);
+        windComputeShader.SetFloat("windStrength", windStrength);
+        windComputeShader.SetFloat("time", Time.time);
+
+        int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
+        windComputeShader.Dispatch(windKernelHandle, Mathf.CeilToInt(totalGrassBlades / 10.0f), 1, 1);
     }
 
     void OnDestroy()
@@ -88,6 +112,11 @@ public class ModelGrass : MonoBehaviour
         {
             argsBuffer.Release();
             argsBuffer = null;
+        }
+        if (windBuffer != null)
+        {
+            windBuffer.Release();
+            windBuffer = null;
         }
     }
 }

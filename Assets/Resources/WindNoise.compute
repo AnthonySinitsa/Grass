@@ -1,0 +1,18 @@
+#pragma kernel CSMain
+
+cbuffer WindParams
+{
+    float windSpeed;
+    float frequency;
+    float windStrength;
+    float time;
+}
+
+RWStructuredBuffer<float3> windBuffer;
+
+[numthreads(1, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float wind = sin(id.x * frequency + time * windSpeed) * windStrength;
+    windBuffer[id.x] = float3(wind, 0, wind);
+}

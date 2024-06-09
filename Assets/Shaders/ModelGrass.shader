@@ -35,6 +35,7 @@ Shader "Custom/ModelGrass"
             };
 
             StructuredBuffer<GrassBlade> grassBuffer;
+            StructuredBuffer<float3> windBuffer;
 
             struct appdata
             {
@@ -89,6 +90,10 @@ Shader "Custom/ModelGrass"
 
                 // Apply rotation
                 float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
+
+                // Apply wind effect
+                float3 windEffect = windBuffer[v.instanceID];
+                rotatedPosition += windEffect;
 
                 // Base, controlPos1/2, and tip positions for Bezier curve
                 float3 basePos = blade.position;
