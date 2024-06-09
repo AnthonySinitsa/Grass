@@ -5,6 +5,7 @@ public class ModelGrass : MonoBehaviour
     public ComputeShader grassComputeShader;
     public Material grassMaterial;
     public Mesh grassMesh;
+    [Header("Grass")]
     public int numChunks = 5;
     public int chunkDensity = 100;
     [Range(0.0f, 1.0f)]
