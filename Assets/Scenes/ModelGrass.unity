@@ -170,6 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grassComputeShader: {fileID: 7200000, guid: 7262c749679c2784689e4e61fd225e2f, type: 3}
+  windComputeShader: {fileID: 7200000, guid: cf36764e45ec6ca48bd5c6460e219b5b, type: 3}
   grassMaterial: {fileID: 2100000, guid: 21d0a01e5d398ac47a7f469eb3829dac, type: 2}
   grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
   numChunks: 1
@@ -180,6 +181,9 @@ MonoBehaviour:
   voronoiScale: 0.2
   chunkSize: 10
   grassUpdate: 0
+  windSpeed: 1
+  frequency: 1
+  windStrength: 1
 --- !u!64 &941164295
 MeshCollider:
   m_ObjectHideFlags: 0
