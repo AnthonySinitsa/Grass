@@ -182,7 +182,7 @@ MonoBehaviour:
   chunkSize: 10
   grassUpdate: 0
   windSpeed: 1
-  frequency: 1
+  frequency: 0.01
   windStrength: 1
 --- !u!64 &941164295
 MeshCollider:

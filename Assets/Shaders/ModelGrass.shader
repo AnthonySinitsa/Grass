@@ -79,6 +79,14 @@ Shader "Custom/ModelGrass"
                 );
             }
 
+            float4 RotateAroundYInDegrees (float3 vertex, float4 rotation) {
+                float alpha = rotation.y * UNITY_PI / 180.0;
+                float sina, cosa;
+                sincos(alpha, sina, cosa);
+                float3x3 m = float3x3(cosa, 0, sina, 0, 1, 0, -sina, 0, cosa);
+                return float4(mul(m, vertex), 1.0);
+            }
+
 
             v2f vert(appdata v)
             {
@@ -87,15 +95,15 @@ Shader "Custom/ModelGrass"
 
                 // Apply tilt
                 float3 tiltedPosition = Tilt(v.vertex.xyz, blade.tilt);
-
-                // Apply rotation
-                float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
-
+                
                 // Apply wind effect
                 float3 windEffect = windBuffer[v.instanceID];
+
+                // Scale the wind effect based on the y coordinate to affect the entire blade
+                float windInfluence = tiltedPosition.y;
                 
-                // Scale the wind effect based on the y coordinate to affect only the top of the grass
-                float windInfluence = smoothstep(0.0, 1.0, rotatedPosition.y);
+                // Apply rotation
+                float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
                 rotatedPosition += windEffect * windInfluence;
 
                 // Base, controlPos1/2, and tip positions for Bezier curve
@@ -112,7 +120,7 @@ Shader "Custom/ModelGrass"
 
                 // Exaggerate the height more if needed
                 rotatedPosition.y += blade.position.y;
-                float4 worldPos = float4(blade.position + rotatedPosition + curvePos, 1.0);
+                float4 worldPos = float4(rotatedPosition + curvePos, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.uv;
 
