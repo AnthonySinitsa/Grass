@@ -68,7 +68,7 @@ Material:
     - _DstBlend: 0
     - _FacingBlend: 1
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.644
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
@@ -76,7 +76,7 @@ Material:
     - _Parallax: 0.02
     - _Power: 87.6
     - _Radius: 0.5
-    - _Shininess: 0.562
+    - _Shininess: 0.506
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -88,6 +88,7 @@ Material:
     - _Albedo2: {r: 0.4004196, g: 0.4509804, b: 0.3019608, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _TipColor: {r: 0.6415094, g: 0.5585593, b: 0.2753649, a: 1}
   m_BuildTextureStacks: []
