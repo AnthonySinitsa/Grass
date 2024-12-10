@@ -19,6 +19,7 @@ Shader "Custom/ModelGrass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 4.5
 
             #include "UnityPBSLighting.cginc"
             #include "AutoLight.cginc"
