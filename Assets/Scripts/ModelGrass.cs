@@ -112,6 +112,9 @@ public class ModelGrass : MonoBehaviour
         windComputeShader.SetFloat("frequency", frequency);
         windComputeShader.SetFloat("windStrength", windStrength);
         windComputeShader.SetFloat("time", Time.time);
+        windComputeShader.SetFloat("chunkSize", chunkSize);
+        windComputeShader.SetInt("numChunks", numChunks);
+        windComputeShader.SetInt("chunkDensity", chunkDensity);
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
         
