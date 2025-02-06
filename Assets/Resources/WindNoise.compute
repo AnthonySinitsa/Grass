@@ -5,18 +5,48 @@
 RWStructuredBuffer<float3> windBuffer;
 float windSpeed, frequency, windStrength, time;
 int startIndex;
+int numChunks, chunkDensity;
 
 [numthreads(64,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // Calculate the actual blade index including the offset
     uint bladeIndex = startIndex + id.x;
     
-    // Calculate wind effect
+    // Calculate 2D position similar to GrassChunkPoint.compute
+    uint bladesPerChunk = chunkDensity * chunkDensity;
+    uint currentChunkIndex = bladeIndex / bladesPerChunk;
+    uint localBladeIndex = bladeIndex % bladesPerChunk;
+    
+    // Calculate chunk position
+    int chunkX = currentChunkIndex % numChunks;
+    int chunkZ = currentChunkIndex / numChunks;
+    
+    // Calculate local position within chunk
+    int localX = localBladeIndex % chunkDensity;
+    int localZ = localBladeIndex / chunkDensity;
+    
+    // Create 2D position for noise sampling
+    float2 position = float2(
+        chunkX * chunkDensity + localX,
+        chunkZ * chunkDensity + localZ
+    ) * 0.1; // Scale factor for noise sampling
+    
+    // Primary wind movement
+    float noiseX = snoise(float3(position * frequency, time * windSpeed)) * windStrength;
+    float noiseZ = snoise(float3(position * frequency + 100, time * windSpeed)) * windStrength;
+    
+    // Add higher frequency detail
+    float detailX = snoise(float3(position * frequency * 2.5, time * windSpeed * 1.8)) * windStrength * 0.3;
+    float detailZ = snoise(float3(position * frequency * 2.5 + 100, time * windSpeed * 1.8)) * windStrength * 0.3;
+    
+    // Add turbulence
+    float turbulence = snoise(float3(position * frequency * 4.0, time * windSpeed * 3.0)) * windStrength * 0.1;
+    
+    // Combine all movements
     float3 windEffect = float3(
-        sin(time * windSpeed + bladeIndex * frequency) * windStrength,
+        noiseX + detailX + turbulence,
         0,
-        cos(time * windSpeed + bladeIndex * frequency) * windStrength
+        noiseZ + detailZ + turbulence
     );
     
     windBuffer[bladeIndex] = windEffect;

@@ -277,7 +277,7 @@ MonoBehaviour:
   grassMaterial: {fileID: 2100000, guid: 21d0a01e5d398ac47a7f469eb3829dac, type: 2}
   grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
   numChunks: 5
-  chunkDensity: 50
+  chunkDensity: 100
   tilt: 1
   bend: 1
   width: 0.09
@@ -285,7 +285,7 @@ MonoBehaviour:
   chunkSize: 20
   grassUpdate: 0
   windSpeed: 0.5
-  frequency: 0.01
+  frequency: 0.001
   windStrength: 1
 --- !u!1 &948754967
 GameObject:

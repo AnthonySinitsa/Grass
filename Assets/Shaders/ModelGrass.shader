@@ -85,38 +85,36 @@ Shader "Custom/ModelGrass"
             {
                 v2f o;
                 GrassBlade blade = grassBuffer[v.instanceID];
-
+                
                 // Apply tilt
                 float3 tiltedPosition = Tilt(v.vertex.xyz, blade.tilt);
                 
-                // Apply wind effect
+                // Get wind effect
                 float3 windEffect = windBuffer[v.instanceID];
-
-                // Scale the wind effect based on the y coordinate to affect the entire blade
-                float windInfluence = tiltedPosition.y;
                 
                 // Apply rotation
                 float3 rotatedPosition = Rotate(tiltedPosition, blade.facing);
-                rotatedPosition += windEffect * windInfluence;
-
-                // Base, controlPos1/2, and tip positions for Bezier curve
+                
+                // Base position stays fixed
                 float3 basePos = blade.position;
+                
+                // Control points are affected by wind, with increasing influence based on height
+                float windInfluence = v.vertex.y; // 0 at base, 1 at tip
                 float3 controlPos1 = basePos + float3(0, 0.5, 0);
-                float3 controlPos2 = basePos + Rotate(float3(0, 0, blade.bend), blade.facing);
-                float3 tipPos = basePos + float3(0, 1.0, 0);
-
+                float3 controlPos2 = basePos + Rotate(float3(0, 0.7, blade.bend), blade.facing) + windEffect * windInfluence * 0.5;
+                float3 tipPos = basePos + float3(0, 1.0, 0) + windEffect * windInfluence;
+                
                 // Calculate t based on vertex's y position
                 float t = rotatedPosition.y;
-
+                
                 // Calculate the position on the Bezier curve
                 float3 curvePos = CurveSolve(basePos, controlPos1, controlPos2, tipPos, t);
-
-                // Exaggerate the height more if needed
-                rotatedPosition.y += blade.position.y;
+                
+                // Final position
                 float4 worldPos = float4(rotatedPosition + curvePos, 1.0);
                 o.pos = UnityObjectToClipPos(worldPos);
                 o.uv = v.uv;
-
+                
                 return o;
             }
 
