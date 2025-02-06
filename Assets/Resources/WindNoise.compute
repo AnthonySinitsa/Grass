@@ -2,28 +2,22 @@
 
 #include "Simplex.compute"
 
-cbuffer WindParams
-{
-    float windSpeed;
-    float frequency;
-    float windStrength;
-    float time;
-}
-
 RWStructuredBuffer<float3> windBuffer;
+float windSpeed, frequency, windStrength, time;
+int startIndex;
 
-[numthreads(1, 1, 1)]
+[numthreads(64,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // Generate a position in space based on the id and time
-    float3 position = float3(id.x * frequency, 0.0, time * windSpeed);
-
-    // Generate simplex noise value
-    float noiseValue = snoise(position);
-
-    // Scale the noise value by the wind strength
-    float wind = noiseValue * windStrength;
-
-    // Set the wind buffer value
-    windBuffer[id.x] = float3(wind, 0, wind);
+    // Calculate the actual blade index including the offset
+    uint bladeIndex = startIndex + id.x;
+    
+    // Calculate wind effect
+    float3 windEffect = float3(
+        sin(time * windSpeed + bladeIndex * frequency) * windStrength,
+        0,
+        cos(time * windSpeed + bladeIndex * frequency) * windStrength
+    );
+    
+    windBuffer[bladeIndex] = windEffect;
 }

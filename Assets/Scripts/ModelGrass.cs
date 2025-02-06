@@ -62,7 +62,23 @@ public class ModelGrass : MonoBehaviour
         grassComputeShader.SetFloat("chunkSize", chunkSize);
         grassComputeShader.SetInt("seed", seed);
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
-        grassComputeShader.Dispatch(grassKernelHandle, Mathf.CeilToInt(totalGrassBlades / 10.0f), 1, 1);
+        const int THREAD_GROUP_SIZE = 64;
+        const int MAX_THREAD_GROUPS = 65535;
+        int totalThreadGroups = Mathf.CeilToInt((float)totalGrassBlades / THREAD_GROUP_SIZE);
+        
+        int remainingGroups = totalThreadGroups;
+        int processedBlades = 0;
+
+        while (remainingGroups > 0)
+        {
+            int groupsThisDispatch = Mathf.Min(remainingGroups, MAX_THREAD_GROUPS);
+            
+            grassComputeShader.SetInt("startIndex", processedBlades);
+            grassComputeShader.Dispatch(grassKernelHandle, groupsThisDispatch, 1, 1);
+            
+            remainingGroups -= groupsThisDispatch;
+            processedBlades += groupsThisDispatch * THREAD_GROUP_SIZE;
+        }
     }
 
     void Update()
@@ -98,7 +114,31 @@ public class ModelGrass : MonoBehaviour
         windComputeShader.SetFloat("time", Time.time);
 
         int totalGrassBlades = numChunks * numChunks * chunkDensity * chunkDensity;
-        windComputeShader.Dispatch(windKernelHandle, Mathf.CeilToInt(totalGrassBlades), 1, 1);
+        
+        // Calculate how many blades to process per thread group
+        const int THREAD_GROUP_SIZE = 64; // This should match the compute shader's numthreads
+        const int MAX_THREAD_GROUPS = 65535; // Maximum allowed thread groups
+        
+        // Calculate total number of thread groups needed
+        int totalThreadGroups = Mathf.CeilToInt((float)totalGrassBlades / THREAD_GROUP_SIZE);
+        
+        // Split processing into multiple dispatches if needed
+        int remainingGroups = totalThreadGroups;
+        int processedBlades = 0;
+
+        while (remainingGroups > 0)
+        {
+            int groupsThisDispatch = Mathf.Min(remainingGroups, MAX_THREAD_GROUPS);
+            
+            // Set the offset for this batch
+            windComputeShader.SetInt("startIndex", processedBlades);
+            
+            // Dispatch this batch
+            windComputeShader.Dispatch(windKernelHandle, groupsThisDispatch, 1, 1);
+            
+            remainingGroups -= groupsThisDispatch;
+            processedBlades += groupsThisDispatch * THREAD_GROUP_SIZE;
+        }
     }
 
     void OnDestroy()

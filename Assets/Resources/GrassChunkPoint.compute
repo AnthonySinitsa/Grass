@@ -16,18 +16,19 @@ RWStructuredBuffer<GrassBlade> grassBuffer;
 int numChunks, chunkDensity, seed;
 float chunkSize, globalTime, voronoiScale, tilt, bend, width;
 float3 position;
+int startIndex;
 
-[numthreads(10, 1, 1)]
+[numthreads(64,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
+    uint bladeIndex = startIndex + id.x;
     uint totalGrassBlades = (uint)(numChunks * numChunks * chunkDensity * chunkDensity);
-    if (id.x >= totalGrassBlades) return;
+    if (bladeIndex >= totalGrassBlades) return;
 
     GrassBlade blade;
 
     // Calculate chunk index and position within chunk
-    uint chunkIndex = id.x / (chunkDensity * chunkDensity);
-    uint bladeIndex = id.x % (chunkDensity * chunkDensity);
+    uint chunkIndex = bladeIndex / (chunkDensity * chunkDensity);
 
     int chunkX = chunkIndex % numChunks;
     int chunkZ = chunkIndex / numChunks;
@@ -36,7 +37,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     int bladeZ = bladeIndex / chunkDensity;
 
     // Initialize random number generator with a unique seed
-    uint seed = id.x + 1;
+    uint seed = bladeIndex + 1;
     float randomX = randValue(seed) - 0.2;
     float randomZ = randValue(seed * 2) - 0.2;
 
@@ -55,5 +56,5 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     blade.bend = bend;
     blade.width = width;
 
-    grassBuffer[id.x] = blade;
+    grassBuffer[bladeIndex] = blade;
 }
