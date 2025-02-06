@@ -277,7 +277,7 @@ MonoBehaviour:
   grassMaterial: {fileID: 2100000, guid: 21d0a01e5d398ac47a7f469eb3829dac, type: 2}
   grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
   numChunks: 5
-  chunkDensity: 50
+  chunkDensity: 190
   tilt: 1
   bend: 1
   width: 0.09
@@ -285,8 +285,8 @@ MonoBehaviour:
   chunkSize: 20
   grassUpdate: 0
   windSpeed: 0.5
-  frequency: 0.01
-  windStrength: 1
+  frequency: 0.5
+  windStrength: 10
 --- !u!1 &948754967
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,8 +375,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948754967}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.019309578, y: 0.3987703, z: -0.00839879, w: 0.9168091}
-  m_LocalPosition: {x: 6.9940414, y: 3.7713773, z: 6.5663023}
+  m_LocalRotation: {x: -0.21399756, y: -0.37965232, z: 0.09073018, w: -0.89545363}
+  m_LocalPosition: {x: 9.026834, y: 4.0274515, z: 8.704219}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -449,7 +449,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fogShader: {fileID: 4800000, guid: 946f1575defbaab48b1281aa7dfed983, type: 3}
   fogColor: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 0}
-  fogDensity: 0.0115533825
+  fogDensity: 0.0259506
   fogOffset: 4.74153
 --- !u!1 &1526191631
 GameObject:

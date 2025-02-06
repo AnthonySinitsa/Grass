@@ -2,28 +2,52 @@
 
 #include "Simplex.compute"
 
-cbuffer WindParams
-{
-    float windSpeed;
-    float frequency;
-    float windStrength;
-    float time;
-}
-
 RWStructuredBuffer<float3> windBuffer;
+float windSpeed, frequency, windStrength, time;
+int startIndex;
+int numChunks, chunkDensity;
+float chunkSize;
 
-[numthreads(1, 1, 1)]
+[numthreads(64,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // Generate a position in space based on the id and time
-    float3 position = float3(id.x * frequency, 0.0, time * windSpeed);
-
-    // Generate simplex noise value
-    float noiseValue = snoise(position);
-
-    // Scale the noise value by the wind strength
-    float wind = noiseValue * windStrength;
-
-    // Set the wind buffer value
-    windBuffer[id.x] = float3(wind, 0, wind);
+    uint bladeIndex = startIndex + id.x;
+    
+    // Calculate world position using the same method as GrassChunkPoint.compute
+    uint bladesPerChunk = chunkDensity * chunkDensity;
+    uint currentChunkIndex = bladeIndex / bladesPerChunk;
+    uint localBladeIndex = bladeIndex % bladesPerChunk;
+    
+    int chunkX = currentChunkIndex % numChunks;
+    int chunkZ = currentChunkIndex / numChunks;
+    
+    int localX = localBladeIndex % chunkDensity;
+    int localZ = localBladeIndex / chunkDensity;
+    
+    // Calculate world position using chunk coordinates
+    float worldX = chunkX * chunkSize + (localX * chunkSize / chunkDensity);
+    float worldZ = chunkZ * chunkSize + (localZ * chunkSize / chunkDensity);
+    
+    // Use actual world position for noise sampling
+    float2 position = float2(worldX, worldZ) * 0.1;
+    
+    // Primary wind movement using world position
+    float noiseX = snoise(float3(position * frequency, time * windSpeed)) * windStrength;
+    float noiseZ = snoise(float3(position * frequency + 100.0, time * windSpeed)) * windStrength;
+    
+    // Detail noise uses same world position with scaled frequency
+    float detailX = snoise(float3(position * frequency * 2.5, time * windSpeed * 1.8)) * windStrength * 0.3;
+    float detailZ = snoise(float3(position * frequency * 2.5 + 100.0, time * windSpeed * 1.8)) * windStrength * 0.3;
+    
+    // Turbulence uses consistent world space
+    float turbulence = snoise(float3(position * frequency * 4.0, time * windSpeed * 3.0)) * windStrength * 0.1;
+    
+    // Combine all movements
+    float3 windEffect = float3(
+        noiseX + detailX + turbulence,
+        0,
+        noiseZ + detailZ + turbulence
+    );
+    
+    windBuffer[bladeIndex] = windEffect;
 }

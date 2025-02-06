@@ -4,7 +4,7 @@ A project on how to render grass using a 3d model and the billboarding technique
 
 ### 3d Model Grass ([How it's done](README\MODEL.md))
 
-![model](images/model.gif)
+![model](images/betterGrass.gif)
 
 ### BillBoard Grass ([How it's done](README\BILLBOARD.md))
 
