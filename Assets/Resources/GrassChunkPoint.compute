@@ -13,12 +13,11 @@ struct GrassBlade
 
 RWStructuredBuffer<GrassBlade> grassBuffer;
 
-int numChunks, chunkDensity, seed;
+int numChunks, chunkDensity, seed, startIndex;
 float chunkSize, globalTime, voronoiScale, tilt, bend, width;
 float3 position;
-int startIndex;
 
-[numthreads(64,1,1)]
+[numthreads(64, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     uint bladeIndex = startIndex + id.x;
@@ -27,31 +26,33 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     GrassBlade blade;
 
-    // Calculate chunk index and position within chunk
-    uint chunkIndex = bladeIndex / (chunkDensity * chunkDensity);
+    // Calculate chunk and local indices correctly
+    uint bladesPerChunk = chunkDensity * chunkDensity;
+    uint currentChunkIndex = bladeIndex / bladesPerChunk;
+    uint localBladeIndex = bladeIndex % bladesPerChunk;
 
-    int chunkX = chunkIndex % numChunks;
-    int chunkZ = chunkIndex / numChunks;
+    // Calculate chunk position
+    int chunkX = currentChunkIndex % numChunks;
+    int chunkZ = currentChunkIndex / numChunks;
 
-    int bladeX = bladeIndex % chunkDensity;
-    int bladeZ = bladeIndex / chunkDensity;
+    // Calculate local position within chunk
+    int localX = localBladeIndex % chunkDensity;
+    int localZ = localBladeIndex / chunkDensity;
 
     // Initialize random number generator with a unique seed
-    uint seed = bladeIndex + 1;
-    float randomX = randValue(seed) - 0.2;
-    float randomZ = randValue(seed * 2) - 0.2;
+    uint randomSeed = bladeIndex + 1;
+    float randomX = randValue(randomSeed) - 0.2;
+    float randomZ = randValue(randomSeed * 2) - 0.2;
 
-    // Calculate world position and scale by chunk size, adding random offsets
-    position.x = chunkX * chunkSize + (bladeX * chunkSize) / chunkDensity + randomX * (chunkSize / chunkDensity);
-    position.z = chunkZ * chunkSize + (bladeZ * chunkSize) / chunkDensity + randomZ * (chunkSize / chunkDensity);
-    float voronoiValue = voronoi(float2(position.x, position.z) * voronoiScale, globalTime);
-    position.y = voronoiValue;
+    // Calculate world position
+    float worldX = chunkX * chunkSize + (localX * chunkSize / chunkDensity) + randomX * (chunkSize / chunkDensity);
+    float worldZ = chunkZ * chunkSize + (localZ * chunkSize / chunkDensity) + randomZ * (chunkSize / chunkDensity);
     
-    // Calculate random facing
-    float facing = randValue(seed * 3) * 360.0;
-
-    blade.position = position;
-    blade.facing = facing;
+    // Calculate height using voronoi noise
+    float voronoiValue = voronoi(float2(worldX, worldZ) * voronoiScale, globalTime);
+    
+    blade.position = float3(worldX, voronoiValue, worldZ);
+    blade.facing = randValue(randomSeed * 3) * 360.0;
     blade.tilt = tilt;
     blade.bend = bend;
     blade.width = width;
