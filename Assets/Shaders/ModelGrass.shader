@@ -98,11 +98,18 @@ Shader "Custom/ModelGrass"
                 // Base position stays fixed
                 float3 basePos = blade.position;
                 
-                // Control points are affected by wind, with increasing influence based on height
-                float windInfluence = v.vertex.y; // 0 at base, 1 at tip
-                float3 controlPos1 = basePos + float3(0, 0.5, 0);
-                float3 controlPos2 = basePos + Rotate(float3(0, 0.7, blade.bend), blade.facing) + windEffect * windInfluence * 0.5;
-                float3 tipPos = basePos + float3(0, 1.0, 0) + windEffect * windInfluence;
+                // Identify base vertex (assuming it's the lowest y-value vertex)
+                bool isBaseVertex = v.vertex.y < 0.01; // Small threshold to account for floating point precision
+                
+                // Control points are affected by wind with increasing influence based on height
+                float windInfluence = saturate(v.vertex.y); // Clamp between 0 and 1
+                
+                // If this is a base vertex, don't apply any wind or movement
+                float3 controlPos1 = isBaseVertex ? basePos : basePos + float3(0, 0.5, 0);
+                float3 controlPos2 = isBaseVertex ? basePos : basePos + Rotate(float3(0, 0.7, blade.bend), blade.facing) + 
+                                     windEffect * (windInfluence * windInfluence) * 0.5;
+                float3 tipPos = isBaseVertex ? basePos : basePos + float3(0, 1.0, 0) + 
+                                windEffect * windInfluence;
                 
                 // Calculate t based on vertex's y position
                 float t = rotatedPosition.y;
