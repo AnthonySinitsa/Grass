@@ -278,8 +278,8 @@ MonoBehaviour:
   grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
   numChunks: 5
   chunkDensity: 190
-  tilt: 1
-  bend: 1
+  tilt: 0.5
+  bend: 0
   width: 0.09
   voronoiScale: 0.2
   chunkSize: 20
@@ -442,7 +442,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948754967}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc8882205d3edf048ab61f20e5860df9, type: 3}
   m_Name: 
