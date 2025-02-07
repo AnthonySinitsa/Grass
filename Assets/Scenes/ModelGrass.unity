@@ -287,6 +287,10 @@ MonoBehaviour:
   windSpeed: 0.5
   frequency: 0.5
   windStrength: 10
+  control1Height: 0.2
+  control2Height: 0.7
+  tipHeight: 1
+  control2Offset: 0
 --- !u!1 &948754967
 GameObject:
   m_ObjectHideFlags: 0

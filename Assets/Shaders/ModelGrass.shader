@@ -6,6 +6,10 @@ Shader "Custom/ModelGrass"
         _Albedo2 ("Albedo 2", Color) = (1, 1, 1, 1)
         _AOColor ("Ambient Occlusion", Color) = (1, 1, 1)
         _TipColor ("Tip Color", Color) = (1, 1, 1)
+        _Control1Height ("Control Point 1 Height", Range(0, 1)) = 0.2
+        _Control2Height ("Control Point 2 Height", Range(0, 1)) = 0.7
+        _TipHeight ("Tip Height", Range(0, 2)) = 1.0
+        _Control2Offset ("Control Point 2 Offset", Range(-1, 1)) = 0
     }
     SubShader
     {
@@ -54,6 +58,7 @@ Shader "Custom/ModelGrass"
             };
 
             fixed4 _Albedo1, _Albedo2, _AOColor, _TipColor;
+            float _Control1Height, _Control2Height, _TipHeight, _Control2Offset;
 
 
             float3 Tilt(float3 vertex, float tiltAngle)
@@ -81,6 +86,55 @@ Shader "Custom/ModelGrass"
             }
 
 
+            float3 RotateAroundAxis(float3 position, float3 axis, float angle) 
+            {
+                float3 a = normalize(axis);
+                float s = sin(angle);
+                float c = cos(angle);
+                float r = 1.0 - c;
+                
+                float3x3 m = float3x3(
+                    a.x * a.x * r + c,
+                    a.y * a.x * r + a.z * s,
+                    a.z * a.x * r - a.y * s,
+                    a.x * a.y * r - a.z * s,
+                    a.y * a.y * r + c,
+                    a.z * a.y * r + a.x * s,
+                    a.x * a.z * r + a.y * s,
+                    a.y * a.z * r - a.x * s,
+                    a.z * a.z * r + c
+                );
+                
+                return mul(m, position);
+            }
+
+            float3 PreserveLengthBend(float3 basePos, float3 tipPos, float3 windEffect, float t) 
+            {
+                // Original length
+                float originalLength = length(tipPos - basePos);
+                
+                // Calculate wind direction and strength
+                float3 windDir = normalize(windEffect);
+                float windStrength = length(windEffect);
+                
+                // Calculate rotation axis (perpendicular to both up vector and wind direction)
+                float3 rotationAxis = normalize(cross(float3(0, 1, 0), windDir));
+                
+                // Calculate bend angle based on wind strength
+                float bendAngle = atan(windStrength) * t;
+                
+                // Get direction to tip
+                float3 tipDir = normalize(tipPos - basePos);
+                
+                // Rotate the tip direction around the rotation axis
+                float3 bentDir = normalize(RotateAroundAxis(tipDir, rotationAxis, bendAngle));
+                
+                // Calculate new position maintaining original length
+                float3 newPos = lerp(basePos, basePos + bentDir * originalLength, t);
+                
+                return newPos;
+            }
+
             v2f vert(appdata v)
             {
                 v2f o;
@@ -98,30 +152,33 @@ Shader "Custom/ModelGrass"
                 // Base position stays fixed
                 float3 basePos = blade.position;
                 
-                // Identify base vertex (assuming it's the lowest y-value vertex)
-                bool isBaseVertex = v.vertex.y < 0.01; // Small threshold to account for floating point precision
+                // Identify base vertex
+                bool isBaseVertex = v.vertex.y < 0.01;
                 
-                // Control points are affected by wind with increasing influence based on height
-                float windInfluence = saturate(v.vertex.y); // Clamp between 0 and 1
+                // Wind influence increases with height
+                float windInfluence = saturate(v.vertex.y);
                 
-                // Adjust control points to maintain better shape
-                float3 controlPos1 = basePos + float3(0, 0.2, 0); // Reduced height of first control point
-                float3 controlPos2 = basePos + Rotate(float3(0, 0.7, blade.bend), blade.facing) + 
-                                     windEffect * (windInfluence * windInfluence) * 0.5;
-                float3 tipPos = basePos + float3(0, 1.0, 0) + 
-                                windEffect * windInfluence;
+                // Original tip position without wind
+                float3 originalTipPos = basePos + float3(0, _TipHeight, 0);
+                
+                // Calculate bent position preserving length
+                float3 bentPos = PreserveLengthBend(basePos, originalTipPos, windEffect * windInfluence, v.vertex.y);
+                
+                // Control points with exposed parameters
+                float baseToTip = bentPos - basePos;
+                float3 controlPos1 = basePos + baseToTip * _Control1Height;
+                float3 controlPos2 = basePos + baseToTip * _Control2Height + 
+                                    float3(_Control2Offset * (1.0 - v.vertex.y), 0, blade.bend) * (1.0 - windInfluence);
                 
                 if (isBaseVertex) {
                     controlPos1 = basePos;
                     controlPos2 = basePos;
-                    tipPos = basePos;
+                    bentPos = basePos;
                 }
                 
-                // Calculate t based on vertex's y position
+                // Calculate position on the Bezier curve
                 float t = rotatedPosition.y;
-                
-                // Calculate the position on the Bezier curve
-                float3 curvePos = CurveSolve(basePos, controlPos1, controlPos2, tipPos, t);
+                float3 curvePos = CurveSolve(basePos, controlPos1, controlPos2, bentPos, t);
                 
                 // Final position
                 float4 worldPos = float4(rotatedPosition + curvePos, 1.0);
