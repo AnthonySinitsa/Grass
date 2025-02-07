@@ -21,6 +21,15 @@ public class ModelGrass : MonoBehaviour
     public float windSpeed = 1.0f;
     public float frequency = 1.0f;
     public float windStrength = 1.0f;
+    [Header("Bezier Control")]
+    [Range(0.0f, 1.0f)]
+    public float control1Height = 0.2f;
+    [Range(0.0f, 1.0f)]
+    public float control2Height = 0.7f;
+    [Range(0.0f, 2.0f)]
+    public float tipHeight = 1.0f;
+    [Range(-1.0f, 1.0f)]
+    public float control2Offset = 0.0f;
 
     private int seed = 12345;
     private ComputeBuffer grassBuffer, argsBuffer, windBuffer;
@@ -91,6 +100,12 @@ public class ModelGrass : MonoBehaviour
             GenerateGrass();
             grassUpdate = false;
         }
+
+        // Update Bezier control parameters
+        grassMaterial.SetFloat("_Control1Height", control1Height);
+        grassMaterial.SetFloat("_Control2Height", control2Height);
+        grassMaterial.SetFloat("_TipHeight", tipHeight);
+        grassMaterial.SetFloat("_Control2Offset", control2Offset);
 
         grassMaterial.SetBuffer("grassBuffer", grassBuffer);
         grassMaterial.SetBuffer("windBuffer", windBuffer);
