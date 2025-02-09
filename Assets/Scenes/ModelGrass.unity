@@ -238,7 +238,6 @@ GameObject:
   m_Component:
   - component: {fileID: 941164293}
   - component: {fileID: 941164294}
-  - component: {fileID: 941164295}
   m_Layer: 0
   m_Name: GrassBlade
   m_TagString: Untagged
@@ -292,33 +291,6 @@ MonoBehaviour:
   control2Height: 0.7
   tipHeight: 1
   control2Offset: 0
---- !u!114 &941164295
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 941164292}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbecc2402eed1d44b9cc53ce043f110a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grassComputeShader: {fileID: 7200000, guid: 7262c749679c2784689e4e61fd225e2f, type: 3}
-  windComputeShader: {fileID: 7200000, guid: cf36764e45ec6ca48bd5c6460e219b5b, type: 3}
-  grassMaterial: {fileID: 2100000, guid: 21d0a01e5d398ac47a7f469eb3829dac, type: 2}
-  lodSettings:
-  - grassMesh: {fileID: 7629811779324647873, guid: 9e1492c9a2607f541a018bd56a02c1af, type: 3}
-    minDistance: 0
-    maxDistance: 10
-    densityDivisor: 1
-  - grassMesh: {fileID: 2272001217198551621, guid: b28177eda79791741aaf402796bc5470, type: 3}
-    minDistance: 1
-    maxDistance: 100
-    densityDivisor: 8
-  numChunks: 5
-  baseDensity: 300
-  chunkSize: 5
 --- !u!1 &948754967
 GameObject:
   m_ObjectHideFlags: 0
